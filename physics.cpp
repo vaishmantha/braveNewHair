@@ -41,8 +41,8 @@
    gravity(jello); // Equivalent of computeExternalForces()
    
   
-   printf("After accumulating forces: %lf, %lf, %lf", jello->f[50].x, jello->f[50].y, jello->f[50].z);
-   printf("p[i]: %f, %f, %f\n", jello->p[50].x, jello->p[50].y, jello->p[50].z);
+//    printf("After accumulating forces: %lf, %lf, %lf", jello->f[50].x, jello->f[50].y, jello->f[50].z);
+//    printf("p[i]: %f, %f, %f\n", jello->p[50].x, jello->p[50].y, jello->p[50].z);
     // printf("p[i+1]: %f, %f, %f\n", jello->p[50+1].x, jello->p[i+1].y, jello->p[i+1].z);   
 
    // Compute acceleration for each point
@@ -90,27 +90,27 @@
 
         pNORMALIZE(edge); // edge now holds edge unit vector
         curr_length = length;
-        if (i == 50) {
-            //printf("curr_length: %f", curr_length);
-        }
+        // if (i == 1) {
+        //     //printf("curr_length: %f", curr_length);
+        // }
         pNORMALIZE(rest_edge);
         rest_length = length;
-        if (i == 1) {
-            //printf("rest_length: %f", rest_length);
-        }
+        // if (i == 1) {
+        //     //printf("rest_length: %f", rest_length);
+        // }
 
 
         pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
-        if (i == 50) {
+        if (i == 1) {
             printf("delta_v: %f, %f, %f\n", delta_v.x, delta_v.y, delta_v.z);
         }
         pDOT(delta_v, edge, dot);
-        if (i == 50) {
+        if (i == 1) {
             printf("dot: %f\n", dot);
         }
         pMULTIPLY(edge, (jello->dStretch * dot), damp_term);
 
-        if (i == 50) {
+        if (i == 1) {
             // printf("edge: %f, %f, %f\n", edge.x, edge.y, edge.z);
             // printf("rest_edge: %f, %f, %f\n", rest_edge.x, rest_edge.y, rest_edge.z);
 
@@ -120,7 +120,7 @@
         
         pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);
 
-        if (i == 50) {
+        if (i == 1) {
             printf("spring_term: %f, %f, %f\n", spring_term.x, spring_term.y, spring_term.z);
             printf("damp_term: %f, %f, %f\n", damp_term.x, damp_term.y, damp_term.z);
         }        
@@ -128,7 +128,7 @@
         pMULTIPLY(stretch_force, -1.0, neighbor_force);
 
         pSUM(stretch_force, jello->f[i], jello->f[i]);
-        if (i == 50) {
+        if (i == 1) {
             printf("stretch_force: %f, %f, %f\n", stretch_force.x, stretch_force.y, stretch_force.z);
             printf("neighbor_force: %f, %f, %f\n", neighbor_force.x, neighbor_force.y, neighbor_force.z);
         }        
@@ -137,8 +137,17 @@
  }
 
  void gravity(struct world *jello) {
-     for (int i = 0; i < numPoints; i++) {
-         jello->f[i].z -= 9.81;
+     struct point g;
+     g.x = 0.0;
+     g.y = 0.0;
+     g.z = -9.81;
+
+     struct point w; 
+     for (int i = 0; i < numPoints; i++)
+     {
+        pMULTIPLY(g, jello->mass, w);
+        pSUM(jello->f[i], w, jello->f[i]); 
+        // jello->f[i].z -=9.810;
      }
  }
 

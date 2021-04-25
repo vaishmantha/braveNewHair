@@ -17,7 +17,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define numPoints 80
+#define numPoints 7
 struct point 
 {
    double x;
@@ -127,15 +127,15 @@ int main()
   // set the integrator and the physical parameters
   // the values below are EXAMPLES, to be modified by you as needed
   strcpy(jello.integrator,"Euler");
-  jello.dt=0.00001000;
+  jello.dt=0.0005000;
   jello.n=1;
-  jello.kElastic=200;
+  jello.kElastic=2000;
   jello.dElastic=0.25;
-  jello.kStretch = 0.25;
-  jello.dStretch = 0.25; 
+  jello.kStretch = 2000;
+  jello.dStretch = 500; 
   jello.kCollision = 400.0;
   jello.dCollision=0.25;
-  jello.mass= 1.0 / (double)512;
+  jello.mass= 5.0; // / (double)512;
 
   // set the inclined plane (not used in this assignment; ignore)
   jello.incPlanePresent=1;
@@ -173,7 +173,7 @@ int main()
   // set the positions of control points
   for (i=0; i< numPoints; i++)
   {
-    radians = -((i / 8.0) * 360.0 * M_PI/180.0);
+    radians = -((i / 5.0) * 360.0 * M_PI/180.0);
     jello.p[i].x = radius * cos(radians);
     jello.p[i].y = radius * sin(radians);
     jello.p[i].z = c * radians + 1.5;
@@ -189,7 +189,7 @@ int main()
 
   // write the jello variable out to file on disk
   // change jello.w to whatever you need
-  writeWorld("world/nnn.w",&jello);
+  writeWorld("world/eleven.w",&jello);
 
   return 0;
 }

@@ -248,7 +248,6 @@ void readWorld (char * fileName, struct world * jello)
 			jello->p0[i].x = jello->p[i].x;
 			jello->p0[i].y = jello->p[i].y;
 			jello->p0[i].z = jello->p[i].z;
-      printf("HALLOOOO PLEASE WORKL: %lf %lf %lf\n", jello->p[i].x, jello->p[i].y, jello->p[i].z); 
   }
 
   // FIX: initial frames

@@ -15,4 +15,7 @@ void computeAcceleration(struct world * jello, struct point a[numPoints]);
 void Euler(struct world * jello);
 void RK4(struct world * jello);
 
+void stretchSpringForce(struct world *jello);
+void gravity(struct world *jello); 
+
 #endif

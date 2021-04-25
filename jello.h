@@ -105,7 +105,7 @@ extern struct world jello;
 // assigns values x,y,z to point vector dest
 // struct point dest
 // double x,y,z
-#define pMAKE(x,y,z,dest)\
+#define pHELLO(x,y,z,dest)\
 \
   (dest).(x) = (x);\
   (dest).(y) = (y);\

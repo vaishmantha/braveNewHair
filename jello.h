@@ -17,6 +17,7 @@
 #include <string.h>
 
 #define pi 3.141592653589793238462643383279 
+#define numPoints 80
 
 // camera angles
 extern double Theta;
@@ -47,6 +48,8 @@ struct world
   int n; // display only every nth timepoint
   double kElastic; // Hook's elasticity coefficient for all springs except collision springs
   double dElastic; // Damping coefficient for all springs except collision springs
+  double kStretch; // Spring  constant for stretch spring
+  double dStretch; // Damping constant for stretch spring
   double kCollision; // Hook's elasticity coefficient for collision springs
   double dCollision; // Damping coefficient collision springs
   double mass; // mass of each of the 512 control points, mass assumed to be equal for every control point
@@ -54,8 +57,10 @@ struct world
   double a,b,c,d; // inclined plane has equation a * x + b * y + c * z + d = 0; if no inclined plane, these four fields are not used
   int resolution; // resolution for the 3d grid specifying the external force field; value of 0 means that there is no force field
   struct point * forceField; // pointer to the array of values of the force field
-  struct point p[8][8][8]; // position of the 512 control points
-  struct point v[8][8][8]; // velocities of the 512 control points
+  struct point p[numPoints]; // position of the 512 control points
+  struct point v[numPoints]; // velocities of the 512 control points
+  struct point f[numPoints]; // forces for each of the control points
+  struct point p0[numPoints]; // rest positions of control points
 };
 
 extern struct world jello;
@@ -131,5 +136,11 @@ extern struct world jello;
   (dest).y = (src).y * (scalar);\
   (dest).z = (src).z * (scalar);
 
-#endif
+// // performs dot product of src1 and src2 and returns as scalar in dest
+// // struct point src1, src2
+// #define pDOT(src1, src2, dest)\
+// \
+//   (dest) = ((src1).x * (src2).x) + ((src1).y * (src2).y) + ((src1).z * (src2).z);
+
+// #endif
 

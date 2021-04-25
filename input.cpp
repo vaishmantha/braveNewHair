@@ -233,33 +233,36 @@ void readWorld (char * fileName, struct world * jello)
   if (jello->resolution != 0)
     for (i=0; i<= jello->resolution-1; i++)
       for (j=0; j<= jello->resolution-1; j++)
-        for (k=0; k<= jello->resolution-1; k++)
+        for (k=0; k<= jello->resolution-1; k++) {
           fscanf(file, "%lf %lf %lf\n", 
-             &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].x, 
-             &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].y, 
-             &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].z);
-             
+              &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].x, 
+              &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].y, 
+              &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].z);
+
+          jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].x = 0;
+          jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].y = 0;
+          jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].z = 0;
+        }
+          
   
   /* read initial point positions */
-  for (i= 0; i <= 7 ; i++)
+  for (i= 0; i < numPoints; i++)
   {
-    for (j = 0; j <= 7; j++)
-    {
-      for (k = 0; k <= 7; k++)
-        fscanf(file, "%lf %lf %lf\n", 
-          &jello->p[i][j][k].x, &jello->p[i][j][k].y, &jello->p[i][j][k].z);
-    }
+			fscanf(file, "%lf %lf %lf\n",&jello->p[i].x, &jello->p[i].y, &jello->p[i].z);
+			jello->p0[i].x = jello->p[i].x;
+			jello->p0[i].y = jello->p[i].y;
+			jello->p0[i].z = jello->p[i].z;
   }
+
+  // frame computations 
       
   /* read initial point velocities */
-  for (i = 0; i <= 7 ; i++)
+  for (i= 0; i < numPoints; i++)
   {
-    for (j = 0; j <= 7; j++)
-    {
-      for (k = 0; k <= 7; k++)
-        fscanf(file, "%lf %lf %lf\n", 
-          &jello->v[i][j][k].x, &jello->v[i][j][k].y, &jello->v[i][j][k].z);
-    }
+			fscanf(file, "%lf %lf %lf\n",&jello->p[i].x, &jello->p[i].y, &jello->p[i].z);
+			jello->v[i].x = jello->v[i].x;
+			jello->v[i].y = jello->v[i].y;
+			jello->v[i].z = jello->v[i].z;
   }
 
   fclose(file);
@@ -315,26 +318,18 @@ void writeWorld (char * fileName, struct world * jello)
   
 
 
-  /* write initial point positions */
-  for (i = 0; i <= 7 ; i++)
+ /* write initial point positions */
+  for (i = 0; i < numPoints ; i++)
   {
-    for (j = 0; j <= 7; j++)
-    {
-      for (k = 0; k <= 7; k++)
         fprintf(file, "%lf %lf %lf\n", 
-          jello->p[i][j][k].x, jello->p[i][j][k].y, jello->p[i][j][k].z);
-    }
+          jello->p[i].x, jello->p[i].y, jello->p[i].z);
   }
       
   /* write initial point velocities */
-  for (i = 0; i <= 7 ; i++)
+  for (i = 0; i < numPoints; i++)
   {
-    for (j = 0; j <= 7; j++)
-    {
-      for (k = 0; k <= 7; k++)
         fprintf(file, "%lf %lf %lf\n", 
-          jello->v[i][j][k].x, jello->v[i][j][k].y, jello->v[i][j][k].z);
-    }
+          jello->v[i].x, jello->v[i].y, jello->v[i].z);
   }
 
   fclose(file);

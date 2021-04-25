@@ -8,7 +8,7 @@
 #ifndef _PHYSICS_H_
 #define _PHYSICS_H_
 
-void computeAcceleration(struct world * jello, struct point a[8][8][8]);
+void computeAcceleration(struct world * jello, struct point a[numPoints]);
 
 // perform one step of Euler and Runge-Kutta-4th-order integrators
 // updates the jello structure accordingly

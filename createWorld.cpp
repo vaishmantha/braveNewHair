@@ -124,8 +124,8 @@ int main()
 
   // set the integrator and the physical parameters
   // the values below are EXAMPLES, to be modified by you as needed
-  strcpy(jello.integrator,"RK4");
-  jello.dt=0.0005000;
+  strcpy(jello.integrator,"Euler");
+  jello.dt=0.0001000;
   jello.n=1;
   jello.kElastic=200;
   jello.dElastic=0.25;
@@ -141,7 +141,7 @@ int main()
   jello.d=2;
 
   // set the external force field
-  jello.resolution=3;
+  jello.resolution=3;   // FIX: CHANGED FROM 30 
   jello.forceField = 
     (struct point *)malloc(jello.resolution*jello.resolution*jello.resolution*sizeof(struct point));
   for (i=0; i<= jello.resolution-1; i++)
@@ -169,7 +169,7 @@ int main()
   // set the positions of control points
   for (i=0; i< numPoints; i++)
   {
-    radians = -((i / 9.0) * 360 * M_PI/180);
+    radians = -((i / 8.0) * 360.0 * M_PI/180.0);
     jello.p[i].x = radius * cos(radians);
     jello.p[i].y = radius * sin(radians);
     jello.p[i].z = c * radians + 1.5;
@@ -177,16 +177,17 @@ int main()
 
   // set the velocities of control points
   for (i=0; i< numPoints; i++)
-	{
-		jello.v[i].x=0.0;
-		jello.v[i].y=0.0;
-		jello.v[i].z=0.0;
-	}
+  {
+    jello.v[i].x=0.0;
+    jello.v[i].y=0.0;
+    jello.v[i].z=0.0;
+  }
 
   // write the jello variable out to file on disk
   // change jello.w to whatever you need
-  writeWorld("world/hair.w",&jello);
+  writeWorld("world/nnn.w",&jello);
 
   return 0;
 }
+
 

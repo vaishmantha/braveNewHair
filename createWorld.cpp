@@ -75,8 +75,8 @@ void writeWorld(const char * fileName, struct world * jello)
   fprintf(file,"%lf %d\n",jello->dt,jello->n);
 
   /* write physical parameters */
-  fprintf(file, "%lf %lf %lf %lf\n", 
-    jello->kElastic, jello->dElastic, jello->kCollision, jello->dCollision);
+  fprintf(file, "%lf %lf %lf %lf %lf %lf\n", 
+    jello->kElastic, jello->dElastic, jello->dStretch, jello->kStretch, jello->kCollision, jello->dCollision);
 
   /* write mass */
   fprintf(file, "%lf\n", jello->mass);
@@ -127,12 +127,12 @@ int main()
   // set the integrator and the physical parameters
   // the values below are EXAMPLES, to be modified by you as needed
   strcpy(jello.integrator,"Euler");
-  jello.dt=0.001000;
+  jello.dt=0.00001000;
   jello.n=1;
   jello.kElastic=200;
   jello.dElastic=0.25;
-  jello.kStretch = 5000000.0;
-  jello.dStretch = 5000.0; 
+  jello.kStretch = 0.25;
+  jello.dStretch = 0.25; 
   jello.kCollision = 400.0;
   jello.dCollision=0.25;
   jello.mass= 1.0 / (double)512;

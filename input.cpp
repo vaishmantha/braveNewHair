@@ -215,8 +215,8 @@ void readWorld (char * fileName, struct world * jello)
   fscanf(file,"%lf %d\n",&jello->dt,&jello->n);
 
   /* read physical parameters */
-  fscanf(file, "%lf %lf %lf %lf\n", 
-    &jello->kElastic, &jello->dElastic, &jello->kCollision, &jello->dCollision);
+  fscanf(file, "%lf %lf %lf %lf %lf %lf\n", 
+    &jello->kElastic, &jello->dElastic, &jello->kStretch, &jello->dStretch, &jello->kCollision, &jello->dCollision);
 
   /* read mass of each of the 512 points */
   fscanf(file, "%lf\n", &jello->mass);
@@ -248,6 +248,7 @@ void readWorld (char * fileName, struct world * jello)
 			jello->p0[i].x = jello->p[i].x;
 			jello->p0[i].y = jello->p[i].y;
 			jello->p0[i].z = jello->p[i].z;
+      printf("HALLOOOO PLEASE WORKL: %lf %lf %lf\n", jello->p[i].x, jello->p[i].y, jello->p[i].z); 
   }
 
   // FIX: initial frames
@@ -288,6 +289,9 @@ void writeWorld (char * fileName, struct world * jello)
   /* write physical parameters */
   fprintf(file, "%lf %lf %lf %lf\n", 
     jello->kElastic, jello->dElastic, jello->kCollision, jello->dCollision);
+
+  fprintf(file, "%lf %lf %lf %lf\n", 
+    jello->kStretch, jello->dStretch, jello->kCollision, jello->dCollision);
 
   /* write mass */
   fprintf(file, "%lf\n", 

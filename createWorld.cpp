@@ -32,6 +32,8 @@ struct world
   int n; // display only every nth timestep
   double kElastic; // Hook's elasticity coefficient for all springs except collision springs
   double dElastic; // Damping coefficient for all springs except collision springs
+  double kStretch; // Spring  constant for stretch spring
+  double dStretch; // Damping constant for stretch spring
   double kCollision; // Hook's elasticity coefficient for collision springs
   double dCollision; // Damping coefficient collision springs
   double mass; // mass of each of the 512 control points, mass assumed to be equal for every control point
@@ -125,13 +127,15 @@ int main()
   // set the integrator and the physical parameters
   // the values below are EXAMPLES, to be modified by you as needed
   strcpy(jello.integrator,"Euler");
-  jello.dt=0.0001000;
+  jello.dt=0.001000;
   jello.n=1;
   jello.kElastic=200;
   jello.dElastic=0.25;
-  jello.kCollision=400.0;
+  jello.kStretch = 5000000.0;
+  jello.dStretch = 5000.0; 
+  jello.kCollision = 400.0;
   jello.dCollision=0.25;
-  jello.mass= 1.0 / 512;
+  jello.mass= 1.0 / (double)512;
 
   // set the inclined plane (not used in this assignment; ignore)
   jello.incPlanePresent=1;

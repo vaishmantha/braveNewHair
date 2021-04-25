@@ -16,4 +16,3 @@ void Euler(struct world * jello);
 void RK4(struct world * jello);
 
 #endif
-

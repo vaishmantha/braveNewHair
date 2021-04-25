@@ -136,11 +136,10 @@ extern struct world jello;
   (dest).y = (src).y * (scalar);\
   (dest).z = (src).z * (scalar);
 
-// // performs dot product of src1 and src2 and returns as scalar in dest
-// // struct point src1, src2
-// #define pDOT(src1, src2, dest)\
-// \
-//   (dest) = ((src1).x * (src2).x) + ((src1).y * (src2).y) + ((src1).z * (src2).z);
+// performs dot product of src1 and src2 and returns as scalar in dest
+// struct point src1, src2
+#define pDOT(src1, src2, dest)\
+\
+  (dest) = ((src1).x * (src2).x) + ((src1).y * (src2).y) + ((src1).z * (src2).z);
 
-// #endif
-
+#endif

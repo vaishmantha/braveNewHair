@@ -238,10 +238,6 @@ void readWorld (char * fileName, struct world * jello)
               &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].x, 
               &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].y, 
               &jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].z);
-
-          jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].x = 0;
-          jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].y = 0;
-          jello->forceField[i * jello->resolution * jello->resolution + j * jello->resolution + k].z = 0;
         }
           
   
@@ -254,15 +250,12 @@ void readWorld (char * fileName, struct world * jello)
 			jello->p0[i].z = jello->p[i].z;
   }
 
-  // frame computations 
+  // FIX: initial frames
       
   /* read initial point velocities */
   for (i= 0; i < numPoints; i++)
   {
-			fscanf(file, "%lf %lf %lf\n",&jello->p[i].x, &jello->p[i].y, &jello->p[i].z);
-			jello->v[i].x = jello->v[i].x;
-			jello->v[i].y = jello->v[i].y;
-			jello->v[i].z = jello->v[i].z;
+			fscanf(file, "%lf %lf %lf\n",&jello->v[i].x, &jello->v[i].y, &jello->v[i].z);
   }
 
   fclose(file);

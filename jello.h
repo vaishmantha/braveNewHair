@@ -56,12 +56,16 @@ struct world
   int incPlanePresent; // Is the inclined plane present? 1 = YES, 0 = NO (always NO in this assignment)
   double a,b,c,d; // inclined plane has equation a * x + b * y + c * z + d = 0; if no inclined plane, these four fields are not used
   int resolution; // resolution for the 3d grid specifying the external force field; value of 0 means that there is no force field
-  struct point * forceField; // pointer to the array of values of the force field
-  struct point p[numPoints]; // position of the 512 control points
-  struct point v[numPoints]; // velocities of the 512 control points
-  struct point f[numPoints]; // forces for each of the control points
+  struct point * forceField;  // pointer to the array of values of the force field
+  struct point p[numPoints];  // position of the 512 control points
+  struct point v[numPoints];  // velocities of the 512 control points
+  struct point f[numPoints];  // forces for each of the control points
   struct point p0[numPoints]; // rest positions of control points
   struct point p_smooth[numPoints]; // smoothed positions of control points
+  struct point F[numPoints][3][3];  // local frames; F[i] is 3x3 matrix holding the axes for the ith frame
+  struct point F0[numPoints][3][3]; // initial local frames
+  struct point t[numPoints];  // reference vectors
+  struct point t0[numPoints]; // initial reference vectors
 };
 
 extern struct world jello;

@@ -30,9 +30,9 @@
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
    smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
-   getFrames(jello); // Frames (jello->local_frames) are computed along smoothed
-                   // representation of hair curve (to reduce sensitivity of frame
-                   // to changes in hair positions)
+   getFrames(jello, jello->F); // Frames (jello->local_frames) are computed along
+                               // smoothed representation of hair curve (to reduce
+                               // sensitivity of frame to changes in hair positions)
    getReferenceVectors(jello); // Uses local frames to calculate reference vectors jello->t
    bendSpringForce(jello); // Uses reference vectors to calculate
                                                 // bending spring force and apply to
@@ -149,7 +149,7 @@
          total_len += len;
      }
 
-     avg_rest_len = total_len / (numPoints - 1); // TODO: why did Carter divide by 7?
+     avg_rest_len = total_len / (numPoints - 1); // FIXME: divide by 7?
                                                  // Maybe a "segment" is a larger
                                                  // region than just the distance
                                                  // between two points
@@ -188,29 +188,87 @@
      }
  }
 
- void getInitialFrames(struct world *jello) {
+ // Referenced from https://giordi91.github.io/post/2018-31-07-parallel-transport/
+ void getFrames(struct world *jello, struct point frames[numPoints][3][3]) {
+     // TODO: any changes besides adding to jello.h for local_frames?
+     // TODO: am I passing in (references to) arrays correctly lol
 
+     struct point up, start, end, aim, cross;
+     up.x = 0.0;
+     up.y = 0.0;
+     up.z = 1.0;
+     for (int i = 0; i < (numPoints - 1); i++) {
+         pCPY(jello->p_smooth[i],     start);
+         pCPY(jello->p_smooth[i + 1], end);
+
+         pDIFFERENCE(end, start, aim); // FIXME: correct order?
+         pNORMALIZE(aim);
+
+         CROSSPRODUCTp(aim, up, cross);
+         pNORMALIZE(cross);
+
+         CROSSPRODUCTp(cross, aim, up);
+         pNORMALIZE(up);
+
+         // jello->F[i] is the frame for point i, stored as a 3x3 matrix
+         // 1st column is aim; 2nd up; 3rd cross
+         frames[i][0][0] = aim.x;
+         frames[i][1][0] = aim.y;
+         frames[i][2][0] = aim.z;
+
+         frames[i][0][1] = up.x;
+         frames[i][1][1] = up.y;
+         frames[i][2][1] = up.z;
+
+         frames[i][0][2] = cross.x;
+         frames[i][1][2] = cross.y;
+         frames[i][2][2] = cross.z;
+     }
  }
 
- void getFrames(struct world *jello) {
-
+ // Takes in matrix m, transposes it, and stores in mT
+ void transpose(double m[3][3], double mT[3][3]) { // TODO: reference syntax ??
+     for (int i = 0; i < 3; i++) {
+         for (int j = 0; j < 3; j++) {
+             mT[j][i] = m[i][j];
+         }
+     }
  }
 
- void getInitialReferenceVectors(){
-    for (int i = 1; i < numPoints; i++) {
-      point edge;
-      pDIFFERENCE(jello->p0[i], jello->p0[i + 1], edge);
-      double edgeAsArray[3][1];
-      edgeAsArray[0][0] = edge.x;
-      edgeAsArray[1][0] = edge.y;
-      edgeAsArray[2][0] = edge.z;
+ void frameTimesVector(double frame[3][3], struct point& vec, struct point& reference) {
+     double ref[3];
+     double v[3];
+     v[0] = vec.x;
+     v[1] = vec.y;
+     v[2] = vec.z;
+     
+     for (int i = 0; i < 3; i++) {
+         for (int j = 0; j < 3; j++) {
+             ref[i] += frame[i][j] * v[j];
+         }
+     }
 
-      multiplyFrameByEdgeInit(jello->local_frames_init[i], edgeAsArray, jello->t_init[i]);
-    }
+     reference.x = ref[0];
+     reference.y = ref[1];
+     reference.z = ref[2];
+ }
+
+ void getInitialReferenceVectors(struct world *jello){
+     // Transpose frame before calling frameTimesEdge
+     double frameT[3][3];
+     struct point edge;
+     for (int i = 1; i < numPoints; i++) {
+         transpose(jello->F0[i - 1], frameT);
+
+         pDIFFERENCE(jello->p0[i + 1], jello->p0[i], edge); // FIXME: correct order?
+         frameTimesVector(frameT, edge, jello->t0[i]);
+     }
  }
 
  void getReferenceVectors(struct world *jello) {
-
+     for (int i = 1; i < numPoint; i++) {
+         frameTimesVector(jello->F[i - 1], jello->t0[i], jello->t[i]);
+     }
  }
 
  void bendSpringForce(struct world *jello) {

@@ -17,8 +17,9 @@ void RK4(struct world * jello);
 
 void stretchSpringForce(struct world *jello);
 void smoothing(struct world *jello);
-void getInitialFrames(struct world *jello);
-void getFrames(struct world *jello);
+void getFrames(struct world *jello, struct point frames[numPoints][3][3]);
+void transpose(double m[3][3], double mT[3][3]);
+void frameTimesVector(double frame[3][3], struct point& vec, struct point& reference);
 void getInitialReferenceVectors(struct world *jello);
 void getReferenceVectors(struct world *jello);
 void bendSpringForce(struct world *jello);

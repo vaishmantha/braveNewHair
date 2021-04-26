@@ -129,8 +129,8 @@ int main()
   strcpy(jello.integrator,"Euler");
   jello.dt=0.0005000;
   jello.n=1;
-  jello.kElastic=2000;
-  jello.dElastic=0.25;
+  jello.kElastic=1000;
+  jello.dElastic=100;
   jello.kStretch = 2000;
   jello.dStretch = 500; 
   jello.kCollision = 400.0;

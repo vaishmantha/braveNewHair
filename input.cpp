@@ -7,6 +7,7 @@
 
 #include "jello.h"
 #include "input.h"
+#include "physics.h"
 
 /* Write a screenshot, in the PPM format, to the specified filename, in PPM format */
 void saveScreenshot(int windowWidth, int windowHeight, char *filename)
@@ -250,7 +251,9 @@ void readWorld (char * fileName, struct world * jello)
 			jello->p0[i].z = jello->p[i].z;
   }
 
-  // FIX: initial frames
+  smoothing(jello); 
+  // TODO: might need to initialize frames
+  getInitialReferenceVectors(jello);
       
   /* read initial point velocities */
   for (i= 0; i < numPoints; i++)

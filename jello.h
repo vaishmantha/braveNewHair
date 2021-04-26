@@ -62,8 +62,8 @@ struct world
   struct point f[numPoints];  // forces for each of the control points
   struct point p0[numPoints]; // rest positions of control points
   struct point p_smooth[numPoints]; // smoothed positions of control points
-  struct point F[numPoints][3][3];  // local frames; F[i] is 3x3 matrix holding the axes for the ith frame
-  struct point F0[numPoints][3][3]; // initial local frames
+  double F[numPoints][3][3];  // local frames; F[i] is 3x3 matrix holding the axes for the ith frame
+  double F0[numPoints][3][3]; // initial local frames
   struct point t[numPoints];  // reference vectors
   struct point t0[numPoints]; // initial reference vectors
 };

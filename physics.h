@@ -16,6 +16,12 @@ void Euler(struct world * jello);
 void RK4(struct world * jello);
 
 void stretchSpringForce(struct world *jello);
-void gravity(struct world *jello); 
+void smoothing(struct world *jello);
+void getInitialFrames(struct world *jello);
+void getFrames(struct world *jello);
+void getInitialReferenceVectors(struct world *jello);
+void getReferenceVectors(struct world *jello);
+void bendSpringForce(struct world *jello);
+void gravity(struct world *jello);
 
 #endif

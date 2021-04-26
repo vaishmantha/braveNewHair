@@ -30,11 +30,11 @@
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
    smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
-   // getFrames(); // Frames (jello->local_frames) are computed along smoothed
+   getFrames(jello); // Frames (jello->local_frames) are computed along smoothed
                    // representation of hair curve (to reduce sensitivity of frame
                    // to changes in hair positions)
-   // getReferenceVectors(); // Uses local frames to calculate reference vectors jello->t
-   // bendSpringForce(jello, forceAccumulator); // Uses reference vectors to calculate
+   getReferenceVectors(jello); // Uses local frames to calculate reference vectors jello->t
+   bendSpringForce(jello); // Uses reference vectors to calculate
                                                 // bending spring force and apply to
                                                 // each point and their neighbor
 
@@ -135,18 +135,18 @@
  }
 
  void smoothing(struct world *jello) {
-     // TODO: add p_smooth to jello struct (jello.h; no need to init in world file)
-     // TODO: add pLENGTH macro to jello.h
+     // TODO: any changes besides adding to jello.h for p_smooth?
      // TODO: move avg_rest_len calculation to input and store inside of jello struct
      //       to save computation expense
 
      int i;
-     struct point len;
-     double avg_rest_len, total_len;
+     struct point displacement;
+     double len, avg_rest_len, total_len;
      for (i = 0; i < (numPoints - 1); i++)
      {
-         pDIFFERENCE(jello->p0[i + 1], jello->p0[i], len);
-         total_len += pLENGTH(len);
+         pDIFFERENCE(jello->p0[i + 1], jello->p0[i], displacement);
+         pLENGTH(displacement, len);
+         total_len += len;
      }
 
      avg_rest_len = total_len / (numPoints - 1); // TODO: why did Carter divide by 7?
@@ -188,6 +188,35 @@
      }
  }
 
+ void getInitialFrames(struct world *jello) {
+
+ }
+
+ void getFrames(struct world *jello) {
+
+ }
+
+ void getInitialReferenceVectors(){
+    for (int i = 1; i < numPoints; i++) {
+      point edge;
+      pDIFFERENCE(jello->p0[i], jello->p0[i + 1], edge);
+      double edgeAsArray[3][1];
+      edgeAsArray[0][0] = edge.x;
+      edgeAsArray[1][0] = edge.y;
+      edgeAsArray[2][0] = edge.z;
+
+      multiplyFrameByEdgeInit(jello->local_frames_init[i], edgeAsArray, jello->t_init[i]);
+    }
+ }
+
+ void getReferenceVectors(struct world *jello) {
+
+ }
+
+ void bendSpringForce(struct world *jello) {
+
+ }
+
  void gravity(struct world *jello) {
      struct point g;
      g.x = 0.0;
@@ -198,6 +227,8 @@
          pMULTIPLY(g, jello->mass, jello->f[i]);
      }
  }
+
+
 
   /* performs one step of SYMPLECTIC Euler Integration */
   /* as a result, updates the jello structure */
@@ -225,98 +256,4 @@
     }
   }
 
-  /* performs one step of RK4 Integration */
-  /* as a result, updates the jello structure */
-  void RK4(struct world * jello)
-  {
-    // point F1p[8][8][8], F1v[8][8][8], 
-    //       F2p[8][8][8], F2v[8][8][8],
-    //       F3p[8][8][8], F3v[8][8][8],
-    //       F4p[8][8][8], F4v[8][8][8];
-
-    // point a[8][8][8];
-
-
-    // struct world buffer;
-
-    // int i,j,k;
-
-    // buffer = *jello; // make a copy of jello
-
-    // computeAcceleration(jello, a);
-
-    // for (i=0; i<=7; i++)
-    //   for (j=0; j<=7; j++)
-    //     for (k=0; k<=7; k++)
-    //     {
-    //        pMULTIPLY(jello->v[i][j][k],jello->dt,F1p[i][j][k]);
-    //        pMULTIPLY(a[i][j][k],jello->dt,F1v[i][j][k]);
-    //        pMULTIPLY(F1p[i][j][k],0.5,buffer.p[i][j][k]);
-    //        pMULTIPLY(F1v[i][j][k],0.5,buffer.v[i][j][k]);
-    //        pSUM(jello->p[i][j][k],buffer.p[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(jello->v[i][j][k],buffer.v[i][j][k],buffer.v[i][j][k]);
-    //     }
-
-    // computeAcceleration(&buffer, a);
-
-    // for (i=0; i<=7; i++)
-    //   for (j=0; j<=7; j++)
-    //     for (k=0; k<=7; k++)
-    //     {
-    //        // F2p = dt * buffer.v;
-    //        pMULTIPLY(buffer.v[i][j][k],jello->dt,F2p[i][j][k]);
-    //        // F2v = dt * a(buffer.p,buffer.v);     
-    //        pMULTIPLY(a[i][j][k],jello->dt,F2v[i][j][k]);
-    //        pMULTIPLY(F2p[i][j][k],0.5,buffer.p[i][j][k]);
-    //        pMULTIPLY(F2v[i][j][k],0.5,buffer.v[i][j][k]);
-    //        pSUM(jello->p[i][j][k],buffer.p[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(jello->v[i][j][k],buffer.v[i][j][k],buffer.v[i][j][k]);
-    //     }
-
-    // computeAcceleration(&buffer, a);
-
-    // for (i=0; i<=7; i++)
-    //   for (j=0; j<=7; j++)
-    //     for (k=0; k<=7; k++)
-    //     {
-    //        // F3p = dt * buffer.v;
-    //        pMULTIPLY(buffer.v[i][j][k],jello->dt,F3p[i][j][k]);
-    //        // F3v = dt * a(buffer.p,buffer.v);     
-    //        pMULTIPLY(a[i][j][k],jello->dt,F3v[i][j][k]);
-    //        pMULTIPLY(F3p[i][j][k],1.0,buffer.p[i][j][k]);
-    //        pMULTIPLY(F3v[i][j][k],1.0,buffer.v[i][j][k]);
-    //        pSUM(jello->p[i][j][k],buffer.p[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(jello->v[i][j][k],buffer.v[i][j][k],buffer.v[i][j][k]);
-    //     }
-         
-    // computeAcceleration(&buffer, a);
-
-
-    // for (i=0; i<=7; i++)
-    //   for (j=0; j<=7; j++)
-    //     for (k=0; k<=7; k++)
-    //     {
-    //        // F3p = dt * buffer.v;
-    //        pMULTIPLY(buffer.v[i][j][k],jello->dt,F4p[i][j][k]);
-    //        // F3v = dt * a(buffer.p,buffer.v);     
-    //        pMULTIPLY(a[i][j][k],jello->dt,F4v[i][j][k]);
-
-    //        pMULTIPLY(F2p[i][j][k],2,buffer.p[i][j][k]);
-    //        pMULTIPLY(F3p[i][j][k],2,buffer.v[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],buffer.v[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],F1p[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],F4p[i][j][k],buffer.p[i][j][k]);
-    //        pMULTIPLY(buffer.p[i][j][k],1.0 / 6,buffer.p[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],jello->p[i][j][k],jello->p[i][j][k]);
-
-    //        pMULTIPLY(F2v[i][j][k],2,buffer.p[i][j][k]);
-    //        pMULTIPLY(F3v[i][j][k],2,buffer.v[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],buffer.v[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],F1v[i][j][k],buffer.p[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],F4v[i][j][k],buffer.p[i][j][k]);
-    //        pMULTIPLY(buffer.p[i][j][k],1.0 / 6,buffer.p[i][j][k]);
-    //        pSUM(buffer.p[i][j][k],jello->v[i][j][k],jello->v[i][j][k]);
-    //     }
-
-    // return;  
-  }
+  

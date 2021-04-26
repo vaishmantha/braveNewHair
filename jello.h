@@ -61,6 +61,7 @@ struct world
   struct point v[numPoints]; // velocities of the 512 control points
   struct point f[numPoints]; // forces for each of the control points
   struct point p0[numPoints]; // rest positions of control points
+  struct point p_smooth[numPoints]; // smoothed positions of control points
 };
 
 extern struct world jello;
@@ -136,10 +137,15 @@ extern struct world jello;
   (dest).y = (src).y * (scalar);\
   (dest).z = (src).z * (scalar);
 
-// performs dot product of src1 and src2 and returns as scalar in dest
+// Performs dot product of src1 and src2 and returns as scalar in dest
 // struct point src1, src2
 #define pDOT(src1, src2, dest)\
 \
   (dest) = ((src1).x * (src2).x) + ((src1).y * (src2).y) + ((src1).z * (src2).z);
+
+// Calculates length of vector src and stores as scalar in dest
+#define pLENGTH(src, dest)\
+\
+  (dest) = sqrt((src).x * (src).x + (src).y * (src).y + (src).z * (src).z);
 
 #endif

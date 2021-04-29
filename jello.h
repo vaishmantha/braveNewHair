@@ -17,7 +17,7 @@
 #include <string.h>
 
 #define pi 3.141592653589793238462643383279 
-#define numPoints 7
+#define numPoints 20
 
 // camera angles
 extern double Theta;

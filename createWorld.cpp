@@ -17,7 +17,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define numPoints 7
+#define numPoints 20
 struct point 
 {
    double x;
@@ -129,8 +129,8 @@ int main()
   strcpy(jello.integrator,"Euler");
   jello.dt=0.0005000;
   jello.n=1;
-  jello.kElastic=1000;
-  jello.dElastic=100;
+  jello.kElastic=100;
+  jello.dElastic=10;
   jello.kStretch = 2000;
   jello.dStretch = 500; 
   jello.kCollision = 400.0;
@@ -189,7 +189,7 @@ int main()
 
   // write the jello variable out to file on disk
   // change jello.w to whatever you need
-  writeWorld("world/twelve.w",&jello);
+  writeWorld("world/thirteen.w",&jello);
 
   return 0;
 }

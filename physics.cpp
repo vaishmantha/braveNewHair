@@ -135,6 +135,7 @@
      int i;
      struct point displacement;
      double len, avg_rest_len, total_len;
+     total_len = 0;
      for (i = 0; i < (numPoints - 1); i++)
      {
          pDIFFERENCE(jello->p0[i + 1], jello->p0[i], displacement);

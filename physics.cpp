@@ -29,10 +29,14 @@
 
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
-   smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
+//    smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
+    printf("BEFORE: %f %f %f | %f %f %f | %f %f %f\n", jello->F[5][0][0], jello->F[5][0][1], jello->F[5][0][2],jello->F[5][1][0], jello->F[5][1][1], jello->F[5][1][2],jello->F[5][2][0], jello->F[5][2][1], jello->F[5][2][2]); 
+
    getFrames(jello, jello->F); // Frames (jello->local_frames) are computed along
                                // smoothed representation of hair curve (to reduce
                                // sensitivity of frame to changes in hair positions)
+    printf("AFTER: %f %f %f | %f %f %f | %f %f %f\n", jello->F[5][0][0], jello->F[5][0][1], jello->F[5][0][2],jello->F[5][1][0], jello->F[5][1][1], jello->F[5][1][2],jello->F[5][2][0], jello->F[5][2][1], jello->F[5][2][2]); 
+
    getReferenceVectors(jello); // Uses local frames to calculate reference vectors jello->t
    bendSpringForce(jello); // Uses reference vectors to calculate
                                                 // bending spring force and apply to
@@ -135,6 +139,7 @@
      int i;
      struct point displacement;
      double len, avg_rest_len, total_len;
+     total_len = 0.0; 
      for (i = 0; i < (numPoints - 1); i++)
      {
          pDIFFERENCE(jello->p0[i + 1], jello->p0[i], displacement);
@@ -147,10 +152,10 @@
                                                  // region than just the distance
                                                  // between two points
 
-     double alpha = 10.0; // smoothing amount
+     double alpha = 5.0; // smoothing amount
      double beta = fmin(1.0, 1.0 - exp(-1.0 * avg_rest_len / alpha));
 
-     struct point d[numPoints];
+     struct point d[numPoints - 1];
      struct point d_prior, d_2prior, to_next;
      struct point d_init;
      pDIFFERENCE(jello->p[1], jello->p[0], d_init);
@@ -171,12 +176,14 @@
          pSUM(d_prior, d_2prior, d[i]);
          pSUM(d[i], to_next, d[i]);
      }
-
+    
      for (i = 0; i < numPoints; i++) {
           if (i == 0) {
-              jello->p_smooth[i] = jello->p0[i];
+              //jello->p_smooth[i] = jello->p0[i];  // FIXME
+               jello->p[i] = jello->p0[i];
           } else {
-              pSUM(jello->p_smooth[i - 1], d[i - 1], jello->p_smooth[i]);
+              //pSUM(jello->p_smooth[i - 1], d[i - 1], jello->p_smooth[i]); // FIXME 
+               pSUM(jello->p[i - 1], d[i - 1], jello->p[i]);
           }
      }
  }
@@ -191,14 +198,15 @@
      up.y = 0.0;
      up.z = 1.0;
      for (int i = 0; i < (numPoints - 1); i++) {
-         pCPY(jello->p_smooth[i],     start);
-         pCPY(jello->p_smooth[i + 1], end);
+         pCPY(jello->p[i],     start); // FIXME: p_smooth
+         pCPY(jello->p[i + 1], end);   // FIXME: p_smooth
 
          pDIFFERENCE(end, start, aim); // FIXME: correct order?
          double length; 
          pNORMALIZE(aim);
 
          CROSSPRODUCTp(aim, up, cross);
+
          pNORMALIZE(cross);
 
          CROSSPRODUCTp(cross, aim, up);
@@ -222,7 +230,9 @@
 
   // Takes in matrix m, transposes it, and stores in mT
  void transpose(double m[3][3], double mT[3][3]) { // TODO: reference syntax ??
-     for (int i = 0; i < 3; i++) {
+
+     for (int i = 0; i < 3; i++)
+     {
          for (int j = 0; j < 3; j++) {
              mT[j][i] = m[i][j];
          }
@@ -239,10 +249,15 @@
      v[0] = vec.x;
      v[1] = vec.y;
      v[2] = vec.z;
+    //printf("Frame: \n[%lf, %lf, %lf] \n[%lf, %lf, %lf] \n[%lf, %lf, %lf]\n",
+    //          frame[0][0], frame[0][1], frame[0][2], frame[1][0], frame[1][1], frame[1][2], frame[2][0], frame[2][1], frame[2][2]);
+    //printf("Vector: \n[%lf, %lf, %lf]\n" , v[0], v[1], v[2]);
 
-     for (int i = 0; i < 3; i++) {
-         for (int j = 0; j < 3; j++) {
-             printf("frame: %f, v: %f", frame[i][j], v[j]);
+    for (int i = 0; i < 3; i++)
+     {
+         for (int j = 0; j < 3; j++)
+         {
+            //  printf("frame: %f, v: %f", frame[i][j], v[j]);
              ref[i] += frame[i][j] * v[j];
          }
      }
@@ -250,13 +265,19 @@
      reference.x = ref[0];
      reference.y = ref[1];
      reference.z = ref[2];
+     //printf("Reference: \n[%lf, %lf, %lf]\n", ref[0], ref[1], ref[2]);
  }
 
  void getInitialReferenceVectors(struct world *jello){
      // Transpose frame before calling frameTimesEdge
      double frameT[3][3];
      struct point edge;
-     for (int i = 1; i < numPoints; i++) {
+     struct point zero; 
+     zero.x = 0.0;
+     zero.y = 0.0;
+     zero.z = 0.0;
+     jello->t0[0] = zero; 
+     for (int i = 1; i < (numPoints - 1); i++) { // TODO: i = 0 ??
         // printf("F0: %lf\n", jello->F0[i]);
         transpose(jello->F0[i - 1], frameT);
          pDIFFERENCE(jello->p0[i + 1], jello->p0[i], edge); // FIXME: correct order?
@@ -268,11 +289,18 @@
  }
 
  void getReferenceVectors(struct world *jello) {
-     for (int i = 1; i < numPoints; i++) {
-        printf("t0: %f, %f, %f\n", jello->t0[i].x, jello->t0[i].y, jello->t0[i].z);
-         frameTimesVector(jello->F[i - 1], jello->t0[i], jello->t[i]);
+     struct point zero; 
+     zero.x = 0.0;
+     zero.y = 0.0;
+     zero.z = 0.0;
+     pCPY(jello->t[0], zero);
+     pCPY(jello->t[numPoints - 1], zero);
+     for (int i = 1; i < (numPoints - 1); i++)
+     {
+         printf("t0: %f, %f, %f\n", jello->t0[i].x, jello->t0[i].y, jello->t0[i].z);
+         //frameTimesVector(jello->F[i - 1], jello->t0[i], jello->t[i]); FIXME
+         jello->t[i] = jello->t0[i];
         printf("t: %f, %f, %f\n", jello->t[i].x, jello->t[i].y, jello->t[i].z);
-
      }
  }
 
@@ -288,6 +316,9 @@
         struct point spring_term;
         struct point damp_term;
         struct point bending_force;
+        
+        struct point neighbor_force; // equal and opposite of stretch_force, to be
+                                     // applied to neighbor
 
         pDIFFERENCE(jello->p[i+1], jello->p[i], og_edge);
         edge = og_edge; 
@@ -304,13 +335,11 @@
         }  
 
         pMULTIPLY(edge, dot, damp_term);   
-        pDIFFERENCE(damp_term, delta_v, damp_term);
+        pDIFFERENCE(delta_v, damp_term, damp_term);
         pMULTIPLY(damp_term, jello->dElastic, damp_term); 
 
-        pDIFFERENCE(jello->t[i], edge, spring_term)
-        if (i == 1) {
-            printf("ref vector: %f, %f, %f\n", jello->t[i].x, jello->t[i].y, jello->t[i].z);
-        }  
+        pDIFFERENCE(edge, jello->t[i], spring_term)
+
         pMULTIPLY(spring_term, jello->kElastic, spring_term);
         if (i == 1) {
             printf("damp_term: %f, %f, %f\n", damp_term.x, damp_term.y, damp_term.z);
@@ -318,7 +347,10 @@
         }  
         pSUM(spring_term, damp_term, bending_force);
 
-        pSUM(bending_force, jello->f[i], jello->f[i]);    
+        pSUM(bending_force, jello->f[i], jello->f[i]);
+
+        pMULTIPLY(bending_force, -1.0, neighbor_force);
+        pSUM(neighbor_force, jello->f[i+1], jello->f[i+1]);
     }
  }
 

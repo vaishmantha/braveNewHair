@@ -129,10 +129,10 @@ int main()
   strcpy(jello.integrator,"Euler");
   jello.dt=0.0005000;
   jello.n=1;
-  jello.kElastic=100;
-  jello.dElastic=10;
-  jello.kStretch = 2000;
-  jello.dStretch = 500; 
+  jello.kElastic=50;
+  jello.dElastic=4;
+  jello.kStretch = 5000;
+  jello.dStretch = 450; 
   jello.kCollision = 400.0;
   jello.dCollision=0.25;
   jello.mass= 5.0; // / (double)512;
@@ -189,7 +189,7 @@ int main()
 
   // write the jello variable out to file on disk
   // change jello.w to whatever you need
-  writeWorld("world/thirteen.w",&jello);
+  writeWorld("world/temp.w",&jello);
 
   return 0;
 }

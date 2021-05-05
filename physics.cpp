@@ -30,13 +30,10 @@
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
    smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
-    printf("BEFORE: %f %f %f | %f %f %f | %f %f %f\n", jello->F[5][0][0], jello->F[5][0][1], jello->F[5][0][2],jello->F[5][1][0], jello->F[5][1][1], jello->F[5][1][2],jello->F[5][2][0], jello->F[5][2][1], jello->F[5][2][2]); 
 
    getFrames(jello, jello->F); // Frames (jello->local_frames) are computed along
                                // smoothed representation of hair curve (to reduce
                                // sensitivity of frame to changes in hair positions)
-    printf("AFTER: %f %f %f | %f %f %f | %f %f %f\n", jello->F[5][0][0], jello->F[5][0][1], jello->F[5][0][2],jello->F[5][1][0], jello->F[5][1][1], jello->F[5][1][2],jello->F[5][2][0], jello->F[5][2][1], jello->F[5][2][2]); 
-
    getReferenceVectors(jello); // Uses local frames to calculate reference vectors jello->t
    bendSpringForce(jello); // Uses reference vectors to calculate
                                                 // bending spring force and apply to
@@ -248,10 +245,7 @@
      for (int i = 1; i < (numPoints - 1); i++) { // TODO: i = 0 ??
         transpose(jello->F0[i - 1], frameT);
          pDIFFERENCE(jello->p0[i + 1], jello->p0[i], edge); // FIXME: correct order?
-        printf("edge: %f, %f, %f\n", edge.x, edge.y, edge.z);
-        printf("frameT: %f %f %f | %f %f %f | %f %f %f\n", frameT[0][0], frameT[0][1], frameT[0][2],frameT[1][0], frameT[1][1], frameT[1][2],frameT[2][0], frameT[2][1], frameT[2][2]); 
         frameTimesVector(frameT, edge, jello->t0[i]);
-        printf("t0NEXT: %f, %f, %f\n", jello->t0[i].x, jello->t0[i].y, jello->t0[i].z);
      }
  }
 
@@ -264,10 +258,8 @@
      pCPY(jello->t[numPoints - 1], zero);
      for (int i = 1; i < (numPoints - 1); i++)
      {
-         printf("t0: %f, %f, %f\n", jello->t0[i].x, jello->t0[i].y, jello->t0[i].z);
          //frameTimesVector(jello->F[i - 1], jello->t0[i], jello->t[i]); FIXME
          jello->t[i] = jello->t0[i];
-        printf("t: %f, %f, %f\n", jello->t[i].x, jello->t[i].y, jello->t[i].z);
      }
  }
 

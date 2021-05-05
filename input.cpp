@@ -214,6 +214,7 @@ void readWorld (char * fileName, struct world * jello)
 
   /* read timestep size and render */
   fscanf(file,"%lf %d\n",&jello->dt,&jello->n);
+  fscanf(file,"%lf %d\n",&jello->dt_damp,&jello->n);
 
   /* read physical parameters */
   fscanf(file, "%lf %lf %lf %lf %lf %lf\n", 
@@ -251,7 +252,7 @@ void readWorld (char * fileName, struct world * jello)
 			jello->p0[i].z = jello->p[i].z;
   }
 
-  smoothing(jello); 
+  // smoothing(jello);  // FIXME
   // TODO: might need to initialize frames
   getFrames(jello, jello->F0); 
   getInitialReferenceVectors(jello);
@@ -288,6 +289,7 @@ void writeWorld (char * fileName, struct world * jello)
 
   /* write timestep */
   fprintf(file,"%lf %d\n",jello->dt,jello->n);
+  fprintf(file,"%lf %d\n",jello->dt_damp,jello->n);
 
   /* write physical parameters */
   fprintf(file, "%lf %lf %lf %lf\n", 

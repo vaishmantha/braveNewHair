@@ -29,6 +29,7 @@ struct world
 {
   char integrator[10]; // "RK4" or "Euler"
   double dt; // timestep, e.g.. 0.001
+  double dt_damp; //damping loop timestep
   int n; // display only every nth timestep
   double kElastic; // Hook's elasticity coefficient for all springs except collision springs
   double dElastic; // Damping coefficient for all springs except collision springs
@@ -73,6 +74,7 @@ void writeWorld(const char * fileName, struct world * jello)
 
   /* write timestep */
   fprintf(file,"%lf %d\n",jello->dt,jello->n);
+  fprintf(file,"%lf %d\n",jello->dt_damp,jello->n);
 
   /* write physical parameters */
   fprintf(file, "%lf %lf %lf %lf %lf %lf\n", 
@@ -128,6 +130,7 @@ int main()
   // the values below are EXAMPLES, to be modified by you as needed
   strcpy(jello.integrator,"Euler");
   jello.dt=0.0006000;
+  jello.dt_damp = 0.00006000; 
   jello.n=1;
   jello.kElastic=100;
   jello.dElastic=40;

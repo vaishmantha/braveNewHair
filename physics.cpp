@@ -11,6 +11,8 @@
  /* Computes acceleration to every control point of the jello cube, 
     which is in state given by 'jello'.
     Returns result in array 'a'. */
+
+ // TODO: rename computeAcceleration function
  void computeAcceleration(struct world * jello, struct point a[numPoints])
  {
    /* for you to implement ... */
@@ -26,10 +28,10 @@
     jello->f[i].y = 0;
     jello->f[i].z = 0;
    }
-
+   // INTEGRATE internal hair forces
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
-   smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
+//    smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
 
    getFrames(jello, jello->F); // Frames (jello->local_frames) are computed along
                                // smoothed representation of hair curve (to reduce
@@ -39,15 +41,35 @@
                                                 // bending spring force and apply to
                                                 // each point and their neighbor
 
+   // INTEGRATE external forces
    gravity(jello); // Equivalent of computeExternalForces()
   
-   // Compute acceleration for each point
+   // Compute acceleration and velocity for each point
    for (i = 0; i < numPoints; i++) {
        a[i].x = jello->f[i].x / jello->mass;
        a[i].y = jello->f[i].y / jello->mass;
        a[i].z = jello->f[i].z / jello->mass;
+       jello->v[i].x += jello->dt * a[i].x;
+       jello->v[i].y += jello->dt * a[i].y;
+       jello->v[i].z += jello->dt * a[i].z;
    }
-   // collisions();
+
+   dampingForces(jello, a); 
+ }
+
+ void dampingForces(struct world *jello, struct point a[numPoints]){
+    //  For each damping loop iteration: integrate damping forces
+    int i; 
+    for (i = 0; i < numPoints; i++){
+        stretchDampingForce(jello); 
+        bendDampingForce(jello);
+        a[i].x = jello->f[i].x / jello->mass;
+        a[i].y = jello->f[i].y / jello->mass;
+        a[i].z = jello->f[i].z / jello->mass;
+        jello->v[i].x += jello->dt_damp * a[i].x;
+        jello->v[i].y += jello->dt_damp * a[i].y;
+        jello->v[i].z += jello->dt_damp * a[i].z;
+    }
  }
 
  void stretchSpringForce(struct world *jello) {
@@ -60,11 +82,11 @@
         double length; // length of edge (will be assigned value by pNORMALIZE)
         double curr_length;
         double rest_length;
-        struct point delta_v;
-        double dot; // dot product of delta_v and edge unit vector
+        // struct point delta_v;
+        // double dot; // dot product of delta_v and edge unit vector
         struct point spring_term;
-        struct point damp_term;
-        struct point stretch_force;
+        // struct point damp_term;
+        // struct point stretch_force;
         struct point neighbor_force; // equal and opposite of stretch_force, to be
                                      // applied to neighbor
 
@@ -75,14 +97,51 @@
         curr_length = length;
         pNORMALIZE(rest_edge);
         rest_length = length;
+        // pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
+        // pDOT(delta_v, edge, dot);
+        // pMULTIPLY(edge, (jello->dStretch * dot), damp_term);
+        pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);      
+        // pSUM(spring_term, damp_term, stretch_force);
+        // pMULTIPLY(stretch_force, -1.0, neighbor_force);
+
+        pMULTIPLY(spring_term, -1.0, neighbor_force);
+
+        pSUM(spring_term, jello->f[i], jello->f[i]);     
+        pSUM(neighbor_force, jello->f[i + 1], jello->f[i + 1]);
+    }
+ }
+
+ void stretchDampingForce(struct world *jello){
+    for (int i = 0; i < (numPoints - 1); i++) {
+        // Damped stretch spring equation from paper
+        struct point edge;
+        struct point rest_edge;
+        double length; // length of edge (will be assigned value by pNORMALIZE)
+        double curr_length;
+        double rest_length;
+        struct point delta_v;
+        double dot; // dot product of delta_v and edge unit vector
+        // struct point spring_term;
+        struct point damp_term;
+        // struct point stretch_force;
+        struct point neighbor_force; // equal and opposite of stretch_force, to be
+                                     // applied to neighbor
+
+        pDIFFERENCE(jello->p[i+1], jello->p[i], edge);
+        // pDIFFERENCE(jello->p0[i+1], jello->p0[i], rest_edge);
+
+        pNORMALIZE(edge); // edge now holds edge unit vector
+        curr_length = length;
+        // pNORMALIZE(rest_edge);
+        // rest_length = length;
         pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
         pDOT(delta_v, edge, dot);
         pMULTIPLY(edge, (jello->dStretch * dot), damp_term);
-        pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);      
-        pSUM(spring_term, damp_term, stretch_force);
-        pMULTIPLY(stretch_force, -1.0, neighbor_force);
+        // pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);      
+        // pSUM(spring_term, damp_term, stretch_force);
+        pMULTIPLY(damp_term, -1.0, neighbor_force);
 
-        pSUM(stretch_force, jello->f[i], jello->f[i]);     
+        pSUM(damp_term, jello->f[i], jello->f[i]);     
         pSUM(neighbor_force, jello->f[i + 1], jello->f[i + 1]);
     }
  }
@@ -148,11 +207,11 @@
     
      for (i = 0; i < numPoints; i++) {
           if (i == 0) {
-              jello->p_smooth[i] = jello->p0[i];  // FIXME
-            //    jello->p[i] = jello->p0[i];
+            //   jello->p_smooth[i] = jello->p0[i];  // FIXME
+               jello->p[i] = jello->p0[i];
           } else {
-              pSUM(jello->p_smooth[i - 1], d[i - 1], jello->p_smooth[i]); // FIXME 
-            //    pSUM(jello->p[i - 1], d[i - 1], jello->p[i]);
+            //   pSUM(jello->p_smooth[i - 1], d[i - 1], jello->p_smooth[i]); // FIXME 
+               pSUM(jello->p[i - 1], d[i - 1], jello->p[i]);
           }
      }
  }
@@ -166,8 +225,8 @@
      up.y = 0.0;
      up.z = 1.0;
      for (int i = 0; i < (numPoints - 1); i++) {
-         pCPY(jello->p_smooth[i],     start); // FIXME: p_smooth
-         pCPY(jello->p_smooth[i + 1], end);   // FIXME: p_smooth
+         pCPY(jello->p[i],     start); // FIXME: p_smooth
+         pCPY(jello->p[i + 1], end);   // FIXME: p_smooth
 
          pDIFFERENCE(end, start, aim); // FIXME: correct order?
          double length; 
@@ -273,8 +332,45 @@
         struct point delta_v;
         double dot; // dot product of delta_v and edge unit vector
         struct point spring_term;
+        // struct point damp_term;
+        // struct point bending_force;
+        
+        struct point neighbor_force; // equal and opposite of stretch_force, to be
+                                     // applied to neighbor
+
+        pDIFFERENCE(jello->p[i+1], jello->p[i], og_edge);
+        edge = og_edge; 
+        pNORMALIZE(edge); // edge now holds edge unit vector
+        // pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
+        // pDOT(delta_v, edge, dot);
+
+        // pMULTIPLY(edge, dot, damp_term);   
+        // pDIFFERENCE(delta_v, damp_term, damp_term);
+        // pMULTIPLY(damp_term, jello->dElastic, damp_term); 
+
+        pDIFFERENCE(edge, jello->t[i], spring_term)
+
+        pMULTIPLY(spring_term, jello->kElastic, spring_term);
+        // pSUM(spring_term, damp_term, bending_force);
+
+        pSUM(spring_term, jello->f[i], jello->f[i]);
+
+        pMULTIPLY(spring_term, -1.0, neighbor_force);
+        pSUM(neighbor_force, jello->f[i+1], jello->f[i+1]);
+    }
+ }
+
+ void bendDampingForce(struct world *jello){
+    for (int i = 0; i < (numPoints - 1); i++) {
+        // Damped stretch spring equation from paper
+        struct point og_edge; 
+        struct point edge;
+        double length; // length of edge (will be assigned value by pNORMALIZE)
+        struct point delta_v;
+        double dot; // dot product of delta_v and edge unit vector
+        // struct point spring_term;
         struct point damp_term;
-        struct point bending_force;
+        // struct point bending_force;
         
         struct point neighbor_force; // equal and opposite of stretch_force, to be
                                      // applied to neighbor
@@ -289,18 +385,17 @@
         pDIFFERENCE(delta_v, damp_term, damp_term);
         pMULTIPLY(damp_term, jello->dElastic, damp_term); 
 
-        pDIFFERENCE(edge, jello->t[i], spring_term)
+        // pDIFFERENCE(edge, jello->t[i], spring_term)
 
-        pMULTIPLY(spring_term, jello->kElastic, spring_term);
-        pSUM(spring_term, damp_term, bending_force);
+        // pMULTIPLY(spring_term, jello->kElastic, spring_term);
+        // pSUM(spring_term, damp_term, bending_force);
 
-        pSUM(bending_force, jello->f[i], jello->f[i]);
+        pSUM(damp_term, jello->f[i], jello->f[i]);
 
-        pMULTIPLY(bending_force, -1.0, neighbor_force);
+        pMULTIPLY(damp_term, -1.0, neighbor_force);
         pSUM(neighbor_force, jello->f[i+1], jello->f[i+1]);
     }
  }
-
   /* performs one step of SYMPLECTIC Euler Integration */
   /* as a result, updates the jello structure */
   void Euler(struct world * jello)
@@ -313,10 +408,6 @@
     
     // Updating position/velocity for all points except first point (pinned)
     for (i = 1; i < numPoints; i++) {
-        jello->v[i].x += jello->dt * a[i].x;
-        jello->v[i].y += jello->dt * a[i].y;
-        jello->v[i].z += jello->dt * a[i].z;
-
         jello->p[i].x += jello->dt * jello->v[i].x;
         jello->p[i].y += jello->dt * jello->v[i].y;
         jello->p[i].z += jello->dt * jello->v[i].z;

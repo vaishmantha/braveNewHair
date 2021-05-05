@@ -45,6 +45,7 @@ struct world
 {
   char integrator[10]; // "RK4" or "Euler"
   double dt; // timestep, e.g.. 0.001
+  double dt_damp; // timestep for damping loop
   int n; // display only every nth timepoint
   double kElastic; // Hook's elasticity coefficient for all springs except collision springs
   double dElastic; // Damping coefficient for all springs except collision springs

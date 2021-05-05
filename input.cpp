@@ -251,7 +251,7 @@ void readWorld (char * fileName, struct world * jello)
 			jello->p0[i].z = jello->p[i].z;
   }
 
-  // smoothing(jello); 
+  smoothing(jello); 
   // TODO: might need to initialize frames
   getFrames(jello, jello->F0); 
   getInitialReferenceVectors(jello);

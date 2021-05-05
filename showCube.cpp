@@ -91,7 +91,8 @@ void showCube(struct world * jello)
 	for (int i=0; i<numPoints; i++)
 	{
 		glBegin(GL_POINTS); // draw point
-		glColor4f(0,0,0,0);  
+    // printf("%f\n", jello->forceField->y );
+		glColor4f(jello->forceField->x / 10,jello->forceField->y/ 10 ,jello->forceField->z /10,0);  
 		glVertex3f(jello->p[i].x,jello->p[i].y,jello->p[i].z);        
 		glEnd();
 
@@ -104,7 +105,8 @@ void showCube(struct world * jello)
 		}
                      
 		glEnd();
-		glEnable(GL_LIGHTING);
+    
+		// glEnable(GL_LIGHTING);
     }
   glFrontFace(GL_CCW);
 }

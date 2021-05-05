@@ -29,7 +29,7 @@
 
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
-//    smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
+   smoothing(jello); // Calculates jello->p_smoothed[numPoints] (smoothed positions)
     printf("BEFORE: %f %f %f | %f %f %f | %f %f %f\n", jello->F[5][0][0], jello->F[5][0][1], jello->F[5][0][2],jello->F[5][1][0], jello->F[5][1][1], jello->F[5][1][2],jello->F[5][2][0], jello->F[5][2][1], jello->F[5][2][2]); 
 
    getFrames(jello, jello->F); // Frames (jello->local_frames) are computed along
@@ -152,7 +152,7 @@
                                                  // region than just the distance
                                                  // between two points
 
-     double alpha = 5.0; // smoothing amount
+     double alpha = 1.0; // smoothing amount
      double beta = fmin(1.0, 1.0 - exp(-1.0 * avg_rest_len / alpha));
 
      struct point d[numPoints - 1];
@@ -179,11 +179,11 @@
     
      for (i = 0; i < numPoints; i++) {
           if (i == 0) {
-              //jello->p_smooth[i] = jello->p0[i];  // FIXME
-               jello->p[i] = jello->p0[i];
+              jello->p_smooth[i] = jello->p0[i];  // FIXME
+            //    jello->p[i] = jello->p0[i];
           } else {
-              //pSUM(jello->p_smooth[i - 1], d[i - 1], jello->p_smooth[i]); // FIXME 
-               pSUM(jello->p[i - 1], d[i - 1], jello->p[i]);
+              pSUM(jello->p_smooth[i - 1], d[i - 1], jello->p_smooth[i]); // FIXME 
+            //    pSUM(jello->p[i - 1], d[i - 1], jello->p[i]);
           }
      }
  }
@@ -198,8 +198,8 @@
      up.y = 0.0;
      up.z = 1.0;
      for (int i = 0; i < (numPoints - 1); i++) {
-         pCPY(jello->p[i],     start); // FIXME: p_smooth
-         pCPY(jello->p[i + 1], end);   // FIXME: p_smooth
+         pCPY(jello->p_smooth[i],     start); // FIXME: p_smooth
+         pCPY(jello->p_smooth[i + 1], end);   // FIXME: p_smooth
 
          pDIFFERENCE(end, start, aim); // FIXME: correct order?
          double length; 
@@ -267,6 +267,8 @@
      reference.z = ref[2];
      //printf("Reference: \n[%lf, %lf, %lf]\n", ref[0], ref[1], ref[2]);
  }
+
+//  associate colors with forces 
 
  void getInitialReferenceVectors(struct world *jello){
      // Transpose frame before calling frameTimesEdge

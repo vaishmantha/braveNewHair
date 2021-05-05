@@ -17,7 +17,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define numPoints 20
+#define numPoints 10
 struct point 
 {
    double x;
@@ -127,15 +127,15 @@ int main()
   // set the integrator and the physical parameters
   // the values below are EXAMPLES, to be modified by you as needed
   strcpy(jello.integrator,"Euler");
-  jello.dt=0.0005000;
+  jello.dt=0.0006000;
   jello.n=1;
-  jello.kElastic=50;
-  jello.dElastic=4;
+  jello.kElastic=100;
+  jello.dElastic=40;
   jello.kStretch = 5000;
-  jello.dStretch = 450; 
+  jello.dStretch = 45; 
   jello.kCollision = 400.0;
   jello.dCollision=0.25;
-  jello.mass= 5.0; // / (double)512;
+  jello.mass= 5; // / (double)512;
 
   // set the inclined plane (not used in this assignment; ignore)
   jello.incPlanePresent=1;

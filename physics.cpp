@@ -44,10 +44,6 @@
 
    gravity(jello); // Equivalent of computeExternalForces()
   
-    // printf("After accumulating forces: %lf, %lf, %lf", jello->f[50].x, jello->f[50].y, jello->f[50].z);
-    // printf("p[i]: %f, %f, %f\n", jello->p[50].x, jello->p[50].y, jello->p[50].z);
-    // printf("p[i+1]: %f, %f, %f\n", jello->p[50+1].x, jello->p[i+1].y, jello->p[i+1].z);   
-
    // Compute acceleration for each point
    for (i = 0; i < numPoints; i++) {
        a[i].x = jello->f[i].x / jello->mass;
@@ -62,8 +58,6 @@
     // to that of the next point (equal and opposite)
     for (int i = 0; i < (numPoints - 1); i++) {
         // Damped stretch spring equation from paper
-        // TODO: add kStretch (spring coeff) and dStretch (damping coeff) to jello
-        //       struct AND initialize them in createWorld/input.cpp
         struct point edge;
         struct point rest_edge;
         double length; // length of edge (will be assigned value by pNORMALIZE)
@@ -85,34 +79,13 @@
         pNORMALIZE(rest_edge);
         rest_length = length;
         pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
-        // if (i == 1) {
-        //     printf("delta_v: %f, %f, %f\n", delta_v.x, delta_v.y, delta_v.z);
-        // }
         pDOT(delta_v, edge, dot);
-        // if (i == 1) {
-        //     printf("dot: %f\n", dot);
-        // }
         pMULTIPLY(edge, (jello->dStretch * dot), damp_term);
-
-        // if (i == 1) {
-        //     printf("rest_length: %f\n", rest_length);
-        //     printf("curr_length: %f\n", curr_length);
-        // }    
-        
-        pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);
-
-        // if (i == 1) {
-        //     printf("spring_term: %f, %f, %f\n", spring_term.x, spring_term.y, spring_term.z);
-        //     printf("damp_term: %f, %f, %f\n", damp_term.x, damp_term.y, damp_term.z);
-        // }        
+        pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);      
         pSUM(spring_term, damp_term, stretch_force);
         pMULTIPLY(stretch_force, -1.0, neighbor_force);
 
-        pSUM(stretch_force, jello->f[i], jello->f[i]);
-        // if (i == 1) {
-        //     printf("stretch_force: %f, %f, %f\n", stretch_force.x, stretch_force.y, stretch_force.z);
-        //     printf("neighbor_force: %f, %f, %f\n", neighbor_force.x, neighbor_force.y, neighbor_force.z);
-        // }        
+        pSUM(stretch_force, jello->f[i], jello->f[i]);     
         pSUM(neighbor_force, jello->f[i + 1], jello->f[i + 1]);
     }
  }
@@ -132,7 +105,6 @@
  }
 
  void smoothing(struct world *jello) {
-     // TODO: any changes besides adding to jello.h for p_smooth?
      // TODO: move avg_rest_len calculation to input and store inside of jello struct
      //       to save computation expense
 
@@ -191,7 +163,6 @@
  // Referenced from https://giordi91.github.io/post/2018-31-07-parallel-transport/
  void getFrames(struct world *jello, double frames[numPoints][3][3]) {
      // TODO: any changes besides adding to jello.h for local_frames?
-     // TODO: am I passing in (references to) arrays correctly lol
 
      struct point up, start, end, aim, cross;
      up.x = 0.0;
@@ -249,15 +220,11 @@
      v[0] = vec.x;
      v[1] = vec.y;
      v[2] = vec.z;
-    //printf("Frame: \n[%lf, %lf, %lf] \n[%lf, %lf, %lf] \n[%lf, %lf, %lf]\n",
-    //          frame[0][0], frame[0][1], frame[0][2], frame[1][0], frame[1][1], frame[1][2], frame[2][0], frame[2][1], frame[2][2]);
-    //printf("Vector: \n[%lf, %lf, %lf]\n" , v[0], v[1], v[2]);
 
     for (int i = 0; i < 3; i++)
      {
          for (int j = 0; j < 3; j++)
          {
-            //  printf("frame: %f, v: %f", frame[i][j], v[j]);
              ref[i] += frame[i][j] * v[j];
          }
      }
@@ -265,7 +232,6 @@
      reference.x = ref[0];
      reference.y = ref[1];
      reference.z = ref[2];
-     //printf("Reference: \n[%lf, %lf, %lf]\n", ref[0], ref[1], ref[2]);
  }
 
 //  associate colors with forces 
@@ -280,7 +246,6 @@
      zero.z = 0.0;
      jello->t0[0] = zero; 
      for (int i = 1; i < (numPoints - 1); i++) { // TODO: i = 0 ??
-        // printf("F0: %lf\n", jello->F0[i]);
         transpose(jello->F0[i - 1], frameT);
          pDIFFERENCE(jello->p0[i + 1], jello->p0[i], edge); // FIXME: correct order?
         printf("edge: %f, %f, %f\n", edge.x, edge.y, edge.z);
@@ -325,16 +290,8 @@
         pDIFFERENCE(jello->p[i+1], jello->p[i], og_edge);
         edge = og_edge; 
         pNORMALIZE(edge); // edge now holds edge unit vector
-        if (i == 1) {
-            printf("og_edge: %f, %f, %f\n", og_edge.x, og_edge.y, og_edge.z);
-            printf("edge: %f, %f, %f\n", edge.x, edge.y, edge.z);
-        }    
         pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
         pDOT(delta_v, edge, dot);
-        if (i == 1) {
-            printf("deltav: %f, %f, %f\n", delta_v.x, delta_v.y, delta_v.z);
-            printf("dot: %f\n", dot);
-        }  
 
         pMULTIPLY(edge, dot, damp_term);   
         pDIFFERENCE(delta_v, damp_term, damp_term);
@@ -343,10 +300,6 @@
         pDIFFERENCE(edge, jello->t[i], spring_term)
 
         pMULTIPLY(spring_term, jello->kElastic, spring_term);
-        if (i == 1) {
-            printf("damp_term: %f, %f, %f\n", damp_term.x, damp_term.y, damp_term.z);
-            printf("spring_term: %f, %f, %f\n", spring_term.x, spring_term.y, spring_term.z);
-        }  
         pSUM(spring_term, damp_term, bending_force);
 
         pSUM(bending_force, jello->f[i], jello->f[i]);
@@ -361,7 +314,6 @@
   void Euler(struct world * jello)
   {
     // printf("Called Euler\n");
-    // TODO: change CreateWorld to user Euler instead of RK4 [DONE]
     int i,j,k;
     struct point a[numPoints];
 
@@ -376,7 +328,5 @@
         jello->p[i].x += jello->dt * jello->v[i].x;
         jello->p[i].y += jello->dt * jello->v[i].y;
         jello->p[i].z += jello->dt * jello->v[i].z;
-
-        // printf("%f, %f, %f\n", jello->p[i].x, jello->p[i].y, jello->p[i].z); 
     }
   }

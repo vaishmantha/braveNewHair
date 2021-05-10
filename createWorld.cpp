@@ -18,6 +18,8 @@
 #include <stdlib.h>
 
 #define numPoints 10
+#define pi 3.141592653589793238462643383279 
+
 struct point 
 {
    double x;
@@ -176,7 +178,7 @@ int main()
   // set the positions of control points
   for (i=0; i< numPoints; i++)
   {
-    radians = -((i / 5.0) * 360.0 * M_PI/180.0);
+    radians = -((i / 5.0) * 360.0 * pi/180.0);
     jello.p[i].x = radius * cos(radians);
     jello.p[i].y = radius * sin(radians);
     jello.p[i].z = c * radians + 1.5;
@@ -192,7 +194,7 @@ int main()
 
   // write the jello variable out to file on disk
   // change jello.w to whatever you need
-  writeWorld("world/temp.w",&jello);
+  writeWorld("world/temp_pi.w",&jello);
 
   return 0;
 }

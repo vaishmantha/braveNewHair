@@ -45,7 +45,10 @@
    gravity(jello); // Equivalent of computeExternalForces()
   
    // Compute acceleration and velocity for each point
-   for (i = 0; i < numPoints; i++) {
+   jello->v[0].x = 0.0;
+   jello->v[0].y = 0.0;
+   jello->v[0].z = 0.0;
+   for (i = 1; i < numPoints; i++) {
        a[i].x = jello->f[i].x / jello->mass;
        a[i].y = jello->f[i].y / jello->mass;
        a[i].z = jello->f[i].z / jello->mass;
@@ -60,7 +63,13 @@
  void dampingForces(struct world *jello, struct point a[numPoints]){
     //  For each damping loop iteration: integrate damping forces
     int i; 
-    for (i = 0; i < numPoints; i++){
+
+    // First point is stationary
+    jello->v[0].x = 0.0;
+    jello->v[0].y = 0.0;
+    jello->v[0].z = 0.0;
+
+    for (i = 1; i < numPoints; i++){
         stretchDampingForce(jello); 
         bendDampingForce(jello);
         a[i].x = jello->f[i].x / jello->mass;
@@ -317,8 +326,8 @@
      pCPY(jello->t[numPoints - 1], zero);
      for (int i = 1; i < (numPoints - 1); i++)
      {
-         //frameTimesVector(jello->F[i - 1], jello->t0[i], jello->t[i]); FIXME
-         jello->t[i] = jello->t0[i];
+         frameTimesVector(jello->F[i - 1], jello->t0[i], jello->t[i]); //FIXME
+         //jello->t[i] = jello->t0[i];
      }
  }
 

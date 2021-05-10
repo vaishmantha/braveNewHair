@@ -44,20 +44,23 @@
    // INTEGRATE external forces
    gravity(jello); // Equivalent of computeExternalForces()
   
+   stretchDampingForce(jello);
+   bendDampingForce(jello);
+
    // Compute acceleration and velocity for each point
-   jello->v[0].x = 0.0;
+   /*jello->v[0].x = 0.0;
    jello->v[0].y = 0.0;
-   jello->v[0].z = 0.0;
+   jello->v[0].z = 0.0;*/
    for (i = 1; i < numPoints; i++) {
        a[i].x = jello->f[i].x / jello->mass;
        a[i].y = jello->f[i].y / jello->mass;
        a[i].z = jello->f[i].z / jello->mass;
-       jello->v[i].x += jello->dt * a[i].x;
-       jello->v[i].y += jello->dt * a[i].y;
-       jello->v[i].z += jello->dt * a[i].z;
+       //jello->v[i].x += jello->dt * a[i].x;
+       //jello->v[i].y += jello->dt * a[i].y;
+       //jello->v[i].z += jello->dt * a[i].z;
    }
 
-   dampingForces(jello, a); 
+   //dampingForces(jello, a); 
  }
 
  void dampingForces(struct world *jello, struct point a[numPoints]){
@@ -416,9 +419,46 @@
     computeAcceleration(jello, a);
     
     // Updating position/velocity for all points except first point (pinned)
+    jello->v[0].x = 0.0;
+    jello->v[0].y = 0.0;
+    jello->v[0].z = 0.0;
     for (i = 1; i < numPoints; i++) {
         jello->p[i].x += jello->dt * jello->v[i].x;
         jello->p[i].y += jello->dt * jello->v[i].y;
         jello->p[i].z += jello->dt * jello->v[i].z;
+        jello->v[i].x += jello->dt * a[i].x;
+        jello->v[i].y += jello->dt * a[i].y;
+        jello->v[i].z += jello->dt * a[i].z;
+    }
+
+    double maxLength = 3.0 / 7.0;
+    double maxVelocity = 30;
+    double velocityMag;
+
+    // Limit velocity
+    for (i = 1; i < numPoints; i++) {
+        pLENGTH(jello->v[i], velocityMag);
+        if (velocityMag > maxVelocity) {
+            pMULTIPLY(jello->v[i], maxVelocity / velocityMag, jello->v[i]);
+        }
+    }
+
+    // Limit position
+    struct point dist, new_p, offset;
+    double positionMag;
+    for (i = 0; i < numPoints - 1; i++) {
+        pDIFFERENCE(jello->p[i + 1], jello->p[i], dist);
+        pLENGTH(dist, positionMag);
+
+        if (positionMag > maxLength) {
+            pMULTIPLY(dist, maxLength / positionMag, new_p);
+            pSUM(jello->p[i], new_p, new_p);
+            pDIFFERENCE(new_p, jello->p[i + 1], offset);
+            pCPY(new_p, jello->p[i + 1]);
+
+            for (j = i + 1; j < numPoints - 1; j++) {
+                pSUM(jello->p[j], offset, jello->p[j]);
+            }
+        }
     }
   }

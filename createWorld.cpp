@@ -134,7 +134,7 @@ int main()
   jello.dt=0.0006000;
   jello.dt_damp = 0.00006000; 
   jello.n=1;
-  jello.kElastic=100;
+  jello.kElastic=500;
   jello.dElastic=40;
   jello.kStretch = 5000;
   jello.dStretch = 45; 

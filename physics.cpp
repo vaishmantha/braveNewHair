@@ -28,6 +28,7 @@
     jello->f[i].y = 0;
     jello->f[i].z = 0;
    }
+
    // INTEGRATE internal hair forces
    stretchSpringForce(jello); // Equivalent of computeStructuralSpringForces
 
@@ -41,26 +42,38 @@
                                                 // bending spring force and apply to
                                                 // each point and their neighbor
 
+   integrateForces(jello);
+
    // INTEGRATE external forces
    gravity(jello); // Equivalent of computeExternalForces()
-  
-   stretchDampingForce(jello);
-   bendDampingForce(jello);
 
-   // Compute acceleration and velocity for each point
-   /*jello->v[0].x = 0.0;
-   jello->v[0].y = 0.0;
-   jello->v[0].z = 0.0;*/
-   for (i = 1; i < numPoints; i++) {
-       a[i].x = jello->f[i].x / jello->mass;
-       a[i].y = jello->f[i].y / jello->mass;
-       a[i].z = jello->f[i].z / jello->mass;
-       //jello->v[i].x += jello->dt * a[i].x;
-       //jello->v[i].y += jello->dt * a[i].y;
-       //jello->v[i].z += jello->dt * a[i].z;
+   integrateForces(jello);
+
+   for (i = 0; i < 7; i++) {
+       dampingForces(jello, a);
    }
+ }
 
-   //dampingForces(jello, a); 
+ // Compute acceleration and velocity for each point
+ void integrateForces(struct world* jello) {
+     int i;
+
+     struct point a[numPoints];
+     jello->v[0].x = 0.0;
+     jello->v[0].y = 0.0;
+     jello->v[0].z = 0.0;
+     for (i = 1; i < numPoints; i++) {
+         a[i].x = jello->f[i].x / jello->mass;
+         a[i].y = jello->f[i].y / jello->mass;
+         a[i].z = jello->f[i].z / jello->mass;
+         jello->v[i].x += jello->dt * a[i].x;
+         jello->v[i].y += jello->dt * a[i].y;
+         jello->v[i].z += jello->dt * a[i].z;
+
+         jello->f[i].x = 0;
+         jello->f[i].y = 0;
+         jello->f[i].z = 0;
+     }
  }
 
  void dampingForces(struct world *jello, struct point a[numPoints]){
@@ -81,6 +94,10 @@
         jello->v[i].x += jello->dt_damp * a[i].x;
         jello->v[i].y += jello->dt_damp * a[i].y;
         jello->v[i].z += jello->dt_damp * a[i].z;
+
+        jello->f[i].x = 0;
+        jello->f[i].y = 0;
+        jello->f[i].z = 0;
     }
  }
 
@@ -419,18 +436,16 @@
     computeAcceleration(jello, a);
     
     // Updating position/velocity for all points except first point (pinned)
-    jello->v[0].x = 0.0;
-    jello->v[0].y = 0.0;
-    jello->v[0].z = 0.0;
+    //jello->v[0].x = 0.0;
+    //jello->v[0].y = 0.0;
+    //jello->v[0].z = 0.0;
     for (i = 1; i < numPoints; i++) {
         jello->p[i].x += jello->dt * jello->v[i].x;
         jello->p[i].y += jello->dt * jello->v[i].y;
         jello->p[i].z += jello->dt * jello->v[i].z;
-        jello->v[i].x += jello->dt * a[i].x;
-        jello->v[i].y += jello->dt * a[i].y;
-        jello->v[i].z += jello->dt * a[i].z;
     }
 
+    /*
     double maxLength = 3.0 / 7.0;
     double maxVelocity = 30;
     double velocityMag;
@@ -443,7 +458,14 @@
         }
     }
 
+    for (i = 1; i < numPoints; i++) {
+        jello->p[i].x += jello->dt * jello->v[i].x;
+        jello->p[i].y += jello->dt * jello->v[i].y;
+        jello->p[i].z += jello->dt * jello->v[i].z;
+    }
+
     // Limit position
+    
     struct point dist, new_p, offset;
     double positionMag;
     for (i = 0; i < numPoints - 1; i++) {
@@ -460,5 +482,5 @@
                 pSUM(jello->p[j], offset, jello->p[j]);
             }
         }
-    }
+    } */
   }

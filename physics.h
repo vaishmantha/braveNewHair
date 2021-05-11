@@ -27,4 +27,5 @@ void gravity(struct world *jello);
 void dampingForces(struct world *jello, struct point a[numPoints]);
 void stretchDampingForce(struct world *jello); 
 void bendDampingForce(struct world *jello); 
+void integrateForces(struct world* jello);
 #endif

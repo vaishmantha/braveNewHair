@@ -134,6 +134,16 @@ void keyboardFunc (unsigned char key, int x, int y)
     case ' ':
       saveScreenToFile = 1 - saveScreenToFile;
       break;
+    
+    // add keys for wind 
+    case 'i':
+      up = 1 - up; 
+    case 'k':
+      down = 1 - down;
+    case 'j':
+      left = 1 - left;
+    case 'l':
+      right = 1 - right; 
   }
 }
 

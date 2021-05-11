@@ -194,7 +194,7 @@ int main()
 
   // write the jello variable out to file on disk
   // change jello.w to whatever you need
-  writeWorld("world/temp_pi.w",&jello);
+  writeWorld("world/temp.w",&jello);
 
   return 0;
 }

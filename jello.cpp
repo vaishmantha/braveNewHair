@@ -28,6 +28,7 @@ int sprite=0;
 
 // these variables control what is displayed on screen
 int shear=0, bend=0, structural=1, pause=0, viewingMode=0, saveScreenToFile=0;
+int up=0, down=0, left=0, right=0; 
 
 struct world jello;
 

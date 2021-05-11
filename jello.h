@@ -40,6 +40,7 @@ struct point
 
 // these variables control what is displayed on the screen
 extern int shear, bend, structural, pause, viewingMode, saveScreenToFile;
+extern int up, down, left, right; 
 
 struct world
 {

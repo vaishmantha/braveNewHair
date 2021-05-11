@@ -24,6 +24,7 @@ void getInitialReferenceVectors(struct world *jello);
 void getReferenceVectors(struct world *jello);
 void bendSpringForce(struct world *jello);
 void gravity(struct world *jello);
+void wind(struct world *jello); 
 void dampingForces(struct world *jello, struct point a[numPoints]);
 void stretchDampingForce(struct world *jello); 
 void bendDampingForce(struct world *jello); 

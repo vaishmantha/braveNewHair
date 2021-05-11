@@ -47,6 +47,8 @@
    // INTEGRATE external forces
    gravity(jello); // Equivalent of computeExternalForces()
    // TODO: apply wind force according to keypress
+   
+   wind(jello); 
 
    integrateForces(jello);
 
@@ -188,6 +190,24 @@
         pMULTIPLY(g, jello->mass, w);
         pSUM(jello->f[i], w, jello->f[i]); 
      }
+ }
+
+ void wind(struct world *jello) {
+    for (int i = 1; i < numPoints; i++)
+    {
+      if(up == 1){
+            jello->f[i].z += 1000.0; 
+        }
+      else if (down == 1){
+            jello->f[i].z -= 1000.0;
+        }
+      else if(left == 1){
+            jello->f[i].y -= 1000.0; 
+        }
+      else if(right == 1){
+            jello->f[i].y += 1000.0; 
+        }
+    }
  }
 
  void smoothing(struct world *jello) {

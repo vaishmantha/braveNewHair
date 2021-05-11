@@ -30,7 +30,7 @@ int sprite=0;
 int shear=0, bend=0, structural=1, pause=0, viewingMode=0, saveScreenToFile=0;
 int up=0, down=0, left=0, right=0; 
 
-struct world jello;
+struct world jello, jello2;
 
 int windowWidth, windowHeight;
 
@@ -184,6 +184,7 @@ void display()
 
   // show the cube
   showCube(&jello);
+  showCube(&jello2);
 
   glDisable(GL_LIGHTING);
 
@@ -220,6 +221,7 @@ void doIdle()
   {
     // insert code which appropriately performs one step of the cube simulation:
     Euler(&jello); 
+    Euler(&jello2);
   }
 
   glutPostRedisplay();
@@ -234,7 +236,8 @@ int main (int argc, char ** argv)
     exit(0);
   }
 
-  readWorld(argv[1],&jello);
+  readWorld(argv[1],&jello,  0.0);
+  readWorld(argv[1],&jello2, 0.1);
 
   glutInit(&argc,argv);
   

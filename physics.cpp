@@ -196,16 +196,16 @@
     for (int i = 1; i < numPoints; i++)
     {
       if(up == 1){
-            jello->f[i].z += 1000.0; 
+            jello->f[i].z += 100000.0; 
         }
       else if (down == 1){
-            jello->f[i].z -= 1000.0;
+            jello->f[i].z -= 100000.0;
         }
       else if(left == 1){
-            jello->f[i].y -= 1000.0; 
+            jello->f[i].y -= 100000.0; 
         }
       else if(right == 1){
-            jello->f[i].y += 1000.0; 
+            jello->f[i].y += 100000.0; 
         }
     }
  }

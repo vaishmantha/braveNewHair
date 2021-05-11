@@ -46,6 +46,7 @@
 
    // INTEGRATE external forces
    gravity(jello); // Equivalent of computeExternalForces()
+   // TODO: apply wind force according to keypress
 
    integrateForces(jello);
 
@@ -433,7 +434,10 @@
     int i,j,k;
     struct point a[numPoints];
 
-    computeAcceleration(jello, a);
+    for (i = 0; i < 10; i++) {
+        computeAcceleration(jello, a);
+        
+    }
     
     // Updating position/velocity for all points except first point (pinned)
     //jello->v[0].x = 0.0;

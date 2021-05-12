@@ -138,7 +138,7 @@ int main()
   jello.dElastic=40;
   jello.kStretch = 4000;
   jello.dStretch = 450; 
-  jello.kCollision = 1000.0;
+  jello.kCollision = 1400.0;
   jello.dCollision=0.25;
   jello.mass= 5; // / (double)512;
 

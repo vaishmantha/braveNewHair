@@ -220,8 +220,8 @@ void doIdle()
   if (pause == 0)
   {
     // insert code which appropriately performs one step of the cube simulation:
-    Euler(&jello); 
-    Euler(&jello2);
+    Euler(&jello, &jello2); 
+    Euler(&jello2, &jello);
   }
 
   glutPostRedisplay();
@@ -237,7 +237,9 @@ int main (int argc, char ** argv)
   }
 
   readWorld(argv[1],&jello,  0.0);
-  readWorld(argv[1],&jello2, 0.1);
+  readWorld(argv[1],&jello2, strandOffset);
+  jello.pushedByWind  = true;
+  jello2.pushedByWind = false;
 
   glutInit(&argc,argv);
   

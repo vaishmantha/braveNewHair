@@ -257,7 +257,7 @@ void readWorld (char * fileName, struct world * jello, double offset)
   for (i= 0; i < numPoints; i++)
   {
 			fscanf(file, "%lf %lf %lf\n",&jello->p[i].x, &jello->p[i].y, &jello->p[i].z);
-            jello->p[i].y  += offset;
+            jello->p[i].y += offset;
 			jello->p0[i].x = jello->p[i].x;
 			jello->p0[i].y = jello->p[i].y;
 			jello->p0[i].z = jello->p[i].z;

@@ -13,7 +13,8 @@
     Returns result in array 'a'. */
 
  // TODO: rename computeAcceleration function
- void computeAcceleration(struct world * jello, struct point a[numPoints])
+ void computeAcceleration(struct world * jello, struct world *collider,
+                          struct point a[numPoints])
  {
    /* for you to implement ... */
 
@@ -41,15 +42,15 @@
    bendSpringForce(jello); // Uses reference vectors to calculate
                                                 // bending spring force and apply to
                                                 // each point and their neighbor
-
    integrateForces(jello);
 
-   // INTEGRATE external forces
-   gravity(jello); // Equivalent of computeExternalForces()
-   // TODO: apply wind force according to keypress
-   
-   wind(jello); 
 
+   // INTEGRATE external forces
+   gravity(jello); // Equivalent of computeExternalForces()   
+   if (jello->pushedByWind) {
+       wind(jello);
+   }
+   collisions(jello, collider);
    integrateForces(jello);
 
    for (i = 0; i < 7; i++) {
@@ -196,18 +197,44 @@
     for (int i = 1; i < numPoints; i++)
     {
       if(up == 1){
-            jello->f[i].z += 100000.0; 
+            jello->f[i].z += 1000.0; 
         }
       else if (down == 1){
-            jello->f[i].z -= 100000.0;
+            jello->f[i].z -= 1000.0;
         }
       else if(left == 1){
-            jello->f[i].y -= 100000.0; 
+            jello->f[i].y -= 1000.0; 
         }
       else if(right == 1){
-            jello->f[i].y += 100000.0; 
+            jello->f[i].y += 1000.0; 
         }
     }
+ }
+
+ void collisions(struct world* jello, struct world *collider) {
+     // Treat collision between two nodes as undamped stretch spring
+     // (But only apply collision force to THIS strand's node! Each strand
+     // will be detecting collisions for themselves)
+     for (std::pair<int, int> collision : jello->collisions) {
+         struct point edge;
+         struct point rest_edge;
+         double length; // length of edge (will be assigned value by pNORMALIZE)
+         double curr_length;
+         double rest_length;
+
+         struct point spring_term;
+
+         pDIFFERENCE(collider->p[collision.second],  jello->p[collision.first],  edge);
+         pDIFFERENCE(collider->p0[collision.second], jello->p0[collision.first], rest_edge);
+
+         pNORMALIZE(edge); // edge now holds edge unit vector
+         curr_length = length;
+         pNORMALIZE(rest_edge);
+         rest_length = length;
+
+         pMULTIPLY(edge, (jello->kCollision * (rest_length - curr_length)), spring_term);
+         pSUM(spring_term, jello->f[collision.first], jello->f[collision.first]);
+     }
  }
 
  void smoothing(struct world *jello) {
@@ -448,15 +475,30 @@
  }
   /* performs one step of SYMPLECTIC Euler Integration */
   /* as a result, updates the jello structure */
-  void Euler(struct world * jello)
+  void Euler(struct world * jello, struct world * collider)
   {
     // printf("Called Euler\n");
     int i,j,k;
     struct point a[numPoints];
 
+    // Detect collisions
+    struct point displacement;
+    double distance;
+    jello->collisions.clear();
+    for (i = 0; i < numPoints; i++) {
+        for (j = 0; j < numPoints; j++) {
+            pDIFFERENCE(collider->p[j], jello->p[i], displacement);
+            pLENGTH(displacement, distance);
+            // This is a collision! Need to push jello (NOT COLLIDER) back!
+            if (distance < 0.1) {
+                jello->collisions.insert({i, j});
+            }
+        }
+    }
+
+    // Force loop
     for (i = 0; i < 10; i++) {
-        computeAcceleration(jello, a);
-        
+        computeAcceleration(jello, collider, a);
     }
     
     // Updating position/velocity for all points except first point (pinned)

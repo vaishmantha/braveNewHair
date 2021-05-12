@@ -15,9 +15,11 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <map>
 
 #define pi 3.141592653589793238462643383279 
 #define numPoints 10
+#define strandOffset 0.5
 
 // camera angles
 extern double Theta;
@@ -68,6 +70,10 @@ struct world
   double F0[numPoints][3][3]; // initial local frames
   struct point t[numPoints];  // reference vectors
   struct point t0[numPoints]; // initial reference vectors
+  bool pushedByWind; // if true, then gets affected by wind
+  std::map<int, int> collisions; // maps index of a node to displacement
+                                          // from a node on the other strand that
+                                          // it collides with
 };
 
 extern struct world jello;

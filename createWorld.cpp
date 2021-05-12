@@ -131,14 +131,14 @@ int main()
   // set the integrator and the physical parameters
   // the values below are EXAMPLES, to be modified by you as needed
   strcpy(jello.integrator,"Euler");
-  jello.dt=0.0001000;
+  jello.dt=0.00005000;
   jello.dt_damp = 0.00006000; 
   jello.n=1;
   jello.kElastic=800;
   jello.dElastic=40;
   jello.kStretch = 4000;
   jello.dStretch = 450; 
-  jello.kCollision = 400.0;
+  jello.kCollision = 1000.0;
   jello.dCollision=0.25;
   jello.mass= 5; // / (double)512;
 

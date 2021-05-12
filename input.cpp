@@ -153,7 +153,7 @@ void keyboardFunc (unsigned char key, int x, int y)
 /* structure 'jello' will typically be declared (probably statically, not on the heap)
    by the caller function */
 /* function aborts the program if can't access the file */
-void readWorld (char * fileName, struct world * jello, double offset)
+void readWorld (char * fileName, struct world * jello, double offsetX, double offsetY)
 {
   int i,j,k;
   FILE * file;
@@ -257,7 +257,8 @@ void readWorld (char * fileName, struct world * jello, double offset)
   for (i= 0; i < numPoints; i++)
   {
 			fscanf(file, "%lf %lf %lf\n",&jello->p[i].x, &jello->p[i].y, &jello->p[i].z);
-            jello->p[i].y += offset;
+            jello->p[i].y += offsetY;
+            jello->p[i].x += offsetX;
 			jello->p0[i].x = jello->p[i].x;
 			jello->p0[i].y = jello->p[i].y;
 			jello->p0[i].z = jello->p[i].z;

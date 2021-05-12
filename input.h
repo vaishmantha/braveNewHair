@@ -19,7 +19,7 @@ void mouseButton(int button, int state, int x, int y);
 void keyboardFunc (unsigned char key, int x, int y);
 
 // read/write world files
-void readWorld (char * fileName, struct world * jello, double offset);
+void readWorld (char * fileName, struct world * jello, double offsetX, double offsetY);
 void writeWorld (char * fileName, struct world * jello);
 
 #endif

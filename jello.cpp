@@ -236,8 +236,8 @@ int main (int argc, char ** argv)
     exit(0);
   }
 
-  readWorld(argv[1],&jello,  0.0);
-  readWorld(argv[1],&jello2, strandOffset);
+  readWorld(argv[1],&jello,  0.0, 0.0);
+  readWorld(argv[1],&jello2, 0.0, strandOffset);
   jello.pushedByWind  = true;
   jello2.pushedByWind = false;
 

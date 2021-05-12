@@ -20,6 +20,8 @@
 #define pi 3.141592653589793238462643383279 
 #define numPoints 10
 #define strandOffset 0.5
+#define numHairs 9
+#define strandOffsetMulti 0.2
 
 // camera angles
 extern double Theta;

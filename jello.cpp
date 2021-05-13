@@ -218,7 +218,7 @@ void doIdle()
     exit(0);	
   }
 
-  if ((pause == 0) && go)
+  if (pause == 0)
   {
     // insert code which appropriately performs one step of the cube simulation:
     Euler(&jello, &jello2); 

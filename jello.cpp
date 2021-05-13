@@ -29,6 +29,7 @@ int sprite=0;
 // these variables control what is displayed on screen
 int shear=0, bend=0, structural=1, pause=0, viewingMode=0, saveScreenToFile=0;
 int up=0, down=0, left=0, right=0; 
+bool go = false;
 
 struct world jello, jello2;
 
@@ -217,7 +218,7 @@ void doIdle()
     exit(0);	
   }
 
-  if (pause == 0)
+  if ((pause == 0) && go)
   {
     // insert code which appropriately performs one step of the cube simulation:
     Euler(&jello, &jello2); 

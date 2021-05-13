@@ -144,6 +144,8 @@ void keyboardFunc (unsigned char key, int x, int y)
       left = 1 - left;
     case 'l':
       right = 1 - right; 
+    case 'g':
+      go = true;
   }
 }
 
@@ -258,6 +260,7 @@ void readWorld (char * fileName, struct world * jello, double offset)
   {
 			fscanf(file, "%lf %lf %lf\n",&jello->p[i].x, &jello->p[i].y, &jello->p[i].z);
             jello->p[i].y += offset;
+            jello->p[i].z -= 1.0;
 			jello->p0[i].x = jello->p[i].x;
 			jello->p0[i].y = jello->p[i].y;
 			jello->p0[i].z = jello->p[i].z;

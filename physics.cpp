@@ -133,7 +133,7 @@
         // pDIFFERENCE(jello->v[i + 1], jello->v[i], delta_v);
         // pDOT(delta_v, edge, dot);
         // pMULTIPLY(edge, (jello->dStretch * dot), damp_term);
-        pMULTIPLY(edge, (jello->kStretch * (rest_length - curr_length)), spring_term);      
+        pMULTIPLY(edge, (jello->kStretch * (curr_length - rest_length)), spring_term);      
         // pSUM(spring_term, damp_term, stretch_force);
         // pMULTIPLY(stretch_force, -1.0, neighbor_force);
 
@@ -194,19 +194,20 @@
  }
 
  void wind(struct world *jello) {
+     double wind_mag = 300.0;
     for (int i = 1; i < numPoints; i++)
     {
       if(up == 1){
-            jello->f[i].z += 1000.0; 
+            jello->f[i].z += wind_mag; 
         }
       else if (down == 1){
-            jello->f[i].z -= 1000.0;
+            jello->f[i].z -= wind_mag;
         }
       else if(left == 1){
-            jello->f[i].y -= 1000.0; 
+            jello->f[i].y -= wind_mag;
         }
       else if(right == 1){
-            jello->f[i].y += 1000.0; 
+            jello->f[i].y += wind_mag;
         }
     }
  }
@@ -232,8 +233,8 @@
          pNORMALIZE(rest_edge);
          rest_length = length;
 
-         pMULTIPLY(edge, (jello->kCollision * (rest_length - curr_length)), spring_term);
-         pSUM(spring_term, jello->f[collision.first], jello->f[collision.first]);
+         pMULTIPLY(edge, (jello->kCollision * (curr_length - rest_length)), spring_term);
+         pSUM(jello->f[collision.first], spring_term, jello->f[collision.first]);
      }
  }
 
@@ -475,78 +476,53 @@
  }
   /* performs one step of SYMPLECTIC Euler Integration */
   /* as a result, updates the jello structure */
-  void Euler(struct world * jello, struct world * collider)
-  {
-    // printf("Called Euler\n");
-    int i,j,k;
-    struct point a[numPoints];
+ void Euler(struct world* jello, struct world* collider)
+ {
+     // printf("Called Euler\n");
+     int i, j, k;
+     struct point a[numPoints];
 
-    // Detect collisions
-    struct point displacement;
-    double distance;
-    jello->collisions.clear();
-    for (i = 0; i < numPoints; i++) {
-        for (j = 0; j < numPoints; j++) {
-            pDIFFERENCE(collider->p[j], jello->p[i], displacement);
-            pLENGTH(displacement, distance);
-            // This is a collision! Need to push jello (NOT COLLIDER) back!
-            if (distance < 0.1) {
-                jello->collisions.insert({i, j});
-            }
-        }
-    }
+     // Detect collisions
+     jello->collisions.clear();
+
+     int num_subsamples = 7;
+     struct point node_disp;
+     double node_dist;
+     struct point i_to_next, j_to_next, i_node, j_node, i_disp, j_disp;
+     double to_next_mag, length, i_offset, j_offset;
+     for (i = 0; i < numPoints - 1; i++) {
+         pDIFFERENCE(jello->p[i + 1], jello->p[i], i_to_next);
+         pNORMALIZE(i_to_next);
+         i_offset = length / num_subsamples;
+         for (int i_node_num = 0; i_node_num < num_subsamples; i_node_num++) {
+             pMULTIPLY(i_to_next, i_offset * i_node_num, i_disp);
+             pSUM(jello->p[i], i_disp, i_node);
+             for (j = 0; j < numPoints - 1; j++) {
+                 pDIFFERENCE(collider->p[j + 1], collider->p[j], j_to_next);
+                 pNORMALIZE(j_to_next);
+                 j_offset = length / num_subsamples;
+                 for (int j_node_num = 0; j_node_num < num_subsamples; j_node_num++) {
+                     pMULTIPLY(j_to_next, j_offset * j_node_num, j_disp);
+                     pSUM(collider->p[j], j_disp, j_node);
+
+                     pDIFFERENCE(j_node, i_node, node_disp);
+                     pLENGTH(node_disp, node_dist);
+                     if (node_dist < 0.08) {
+                         jello->collisions.insert({ i,j });
+                     }
+                 }
+             }
+         }
+     }
 
     // Force loop
     for (i = 0; i < 10; i++) {
         computeAcceleration(jello, collider, a);
     }
-    
-    // Updating position/velocity for all points except first point (pinned)
-    //jello->v[0].x = 0.0;
-    //jello->v[0].y = 0.0;
-    //jello->v[0].z = 0.0;
-    for (i = 1; i < numPoints; i++) {
-        jello->p[i].x += jello->dt * jello->v[i].x;
-        jello->p[i].y += jello->dt * jello->v[i].y;
-        jello->p[i].z += jello->dt * jello->v[i].z;
-    }
-
-    /*
-    double maxLength = 3.0 / 7.0;
-    double maxVelocity = 30;
-    double velocityMag;
-
-    // Limit velocity
-    for (i = 1; i < numPoints; i++) {
-        pLENGTH(jello->v[i], velocityMag);
-        if (velocityMag > maxVelocity) {
-            pMULTIPLY(jello->v[i], maxVelocity / velocityMag, jello->v[i]);
-        }
-    }
 
     for (i = 1; i < numPoints; i++) {
         jello->p[i].x += jello->dt * jello->v[i].x;
         jello->p[i].y += jello->dt * jello->v[i].y;
         jello->p[i].z += jello->dt * jello->v[i].z;
     }
-
-    // Limit position
-    
-    struct point dist, new_p, offset;
-    double positionMag;
-    for (i = 0; i < numPoints - 1; i++) {
-        pDIFFERENCE(jello->p[i + 1], jello->p[i], dist);
-        pLENGTH(dist, positionMag);
-
-        if (positionMag > maxLength) {
-            pMULTIPLY(dist, maxLength / positionMag, new_p);
-            pSUM(jello->p[i], new_p, new_p);
-            pDIFFERENCE(new_p, jello->p[i + 1], offset);
-            pCPY(new_p, jello->p[i + 1]);
-
-            for (j = i + 1; j < numPoints - 1; j++) {
-                pSUM(jello->p[j], offset, jello->p[j]);
-            }
-        }
-    } */
   }

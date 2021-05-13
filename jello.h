@@ -19,7 +19,7 @@
 
 #define pi 3.141592653589793238462643383279 
 #define numPoints 10
-#define strandOffset 0.5
+#define strandOffset 0.2
 
 // camera angles
 extern double Theta;
@@ -43,6 +43,7 @@ struct point
 // these variables control what is displayed on the screen
 extern int shear, bend, structural, pause, viewingMode, saveScreenToFile;
 extern int up, down, left, right; 
+extern bool go;
 
 struct world
 {

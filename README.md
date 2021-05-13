@@ -30,5 +30,13 @@ make
 ./createWorld
 ./jello world/temp.w
 ```
+Keys:
+* z: camera zoom in
+* x: camera zoom out
+* right mouse button + move mouse: camera control
+* i: turn on/off up wind force
+* j: turn on/off left wind force
+* l: turn on/off right wind force
+* k: turn on/off down wind force
 
 To modify simulation parameters, go into **createWorld.cpp** main function and modify parameters. To change the number of points/particles on the hair - modify the macro in **createWorld.cpp** and **jello.h**. 
